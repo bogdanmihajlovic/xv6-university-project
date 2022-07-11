@@ -32,7 +32,7 @@ public:
 private:
     FreeBlock *head, *tail;
     MemoryAllocator();
-    int tryToMerge(FreeBlock* );
+    void tryToMerge(FreeBlock* );
 
 };
 

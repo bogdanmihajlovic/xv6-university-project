@@ -2,9 +2,7 @@
 // Created by bogdan on 10.7.22..
 //
 
-
 #include "../h/MemoryAllocator.hpp"
-
 
 MemoryAllocator::MemoryAllocator() {
     head = (FreeBlock*)HEAP_START_ADDR;
@@ -57,8 +55,14 @@ void* MemoryAllocator::getMemory(size_t size)  {
         newBlk->size = remainingSize - sizeof(FreeBlock);
     } else {
         // No remaining fragment, allocate the entire block
-        if (blk->prev) blk->prev->next = blk->next;
-        else head = blk->next;
+        if (blk->prev) {
+            blk->prev->next = blk->next;
+            if(blk->next) blk->next->prev = blk->prev;
+        }
+        else {
+            head = blk->next;
+            head->prev = 0;
+        }
     }
     blk->next = 0;
     blk->prev = 0;
@@ -67,8 +71,44 @@ void* MemoryAllocator::getMemory(size_t size)  {
 
 
 
-int MemoryAllocator::freeMemory(void* address) {
-    // TO DO
+int MemoryAllocator::freeMemory(void* addr) {
+
+    if( addr == 0 || (char*)addr < HEAP_START_ADDR || (char*)addr > HEAP_END_ADDR){
+        return -1;
+    }
+
+    // Find the place where to insert the new free segment (just after cur):
+    FreeBlock* cur;
+    if ( !head || (char*)addr< (char*)head)
+        cur = 0; // insert as the first
+    else
+        for (cur=head; cur->next != 0 && (char*)addr >(char*)(cur->next); cur=cur->next);
+
+    // Insert the new segment after cur:
+    FreeBlock* newSeg = (FreeBlock*)((char*)addr - sizeof(FreeBlock));
+    newSeg->prev = cur;
+    if (cur) newSeg->next = cur->next;
+    else newSeg->next = head;
+    if (newSeg->next) newSeg->next->prev = newSeg;
+    if (cur) cur->next = newSeg;
+    else head = newSeg;
+
+   // Try to merge with the previous and next segments:
+    tryToMerge(newSeg);
+    tryToMerge(cur);
+
     return 0;
 }
 
+void MemoryAllocator::tryToMerge(FreeBlock* cur)  {
+
+    if (!cur)
+        return ;
+
+    if (cur->next && (char*)cur+cur->size == (char*)(cur->next)) {
+        // Remove the cur->next segment:
+        cur->size += cur->next->size;
+        cur->next = cur->next->next;
+        if (cur->next) cur->next->prev = cur;
+    }
+}
