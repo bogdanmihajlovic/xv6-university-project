@@ -20,9 +20,9 @@ MemoryAllocator& MemoryAllocator::getInstance() {
 
 
 void* MemoryAllocator::getMemory(size_t size)  {
-
     FreeBlock* blk = head;
 
+    // round size to MEM_BLOCK_SIZE
     size_t temp = size / MEM_BLOCK_SIZE;
     size = (temp * MEM_BLOCK_SIZE == size) ? size : (temp + 1)*MEM_BLOCK_SIZE;
 
@@ -35,11 +35,9 @@ void* MemoryAllocator::getMemory(size_t size)  {
         return 0;
     }
 
-    // Allocate the requested block:
     size_t remainingSize = blk->size - size;
 
-    if (remainingSize >= sizeof(FreeBlock) + MEM_BLOCK_SIZE) {
-        // A fragment remains
+    if (remainingSize >= sizeof(FreeBlock) + MEM_BLOCK_SIZE) { // Shrink block and make a new one
         blk->size = size;
         size_t offset = sizeof(FreeBlock) + size;
         FreeBlock* newBlk = (FreeBlock*)((char*)blk + offset);
@@ -53,8 +51,7 @@ void* MemoryAllocator::getMemory(size_t size)  {
         }
         newBlk->next = blk->next;
         newBlk->size = remainingSize - sizeof(FreeBlock);
-    } else {
-        // No remaining fragment, allocate the entire block
+    } else { // Allocate entire block
         if (blk->prev) {
             blk->prev->next = blk->next;
             if(blk->next) blk->next->prev = blk->prev;
@@ -70,45 +67,44 @@ void* MemoryAllocator::getMemory(size_t size)  {
 }
 
 
-
 int MemoryAllocator::freeMemory(void* addr) {
 
+    // Check address
     if( addr == 0 || (char*)addr < HEAP_START_ADDR || (char*)addr > HEAP_END_ADDR){
         return -1;
     }
 
-    // Find the place where to insert the new free segment (just after cur):
-    FreeBlock* cur;
-    if ( !head || (char*)addr< (char*)head)
-        cur = 0; // insert as the first
+    // Find where to put new block
+    FreeBlock* blk;
+    if ( !head || (char*)addr < (char*)head)
+        blk = 0;
     else
-        for (cur=head; cur->next != 0 && (char*)addr >(char*)(cur->next); cur=cur->next);
+        for ( blk = head; blk->next != 0 && (char*)addr > (char*)(blk->next); blk = blk->next);
 
-    // Insert the new segment after cur:
-    FreeBlock* newSeg = (FreeBlock*)((char*)addr - sizeof(FreeBlock));
-    newSeg->prev = cur;
-    if (cur) newSeg->next = cur->next;
-    else newSeg->next = head;
-    if (newSeg->next) newSeg->next->prev = newSeg;
-    if (cur) cur->next = newSeg;
-    else head = newSeg;
+    // Insert the new block after cur:
+    FreeBlock* newBlk = (FreeBlock*)((char*)addr - sizeof(FreeBlock));
+    newBlk->prev = blk;
+    if (blk) newBlk->next = blk->next;
+    else newBlk->next = head;
+    if (newBlk->next) newBlk->next->prev = newBlk;
+    if (blk) blk->next = newBlk;
+    else head = newBlk;
 
-   // Try to merge with the previous and next segments:
-    tryToMerge(newSeg);
-    tryToMerge(cur);
+    // tryToMerge with next block
+    tryToMerge(newBlk);
+    tryToMerge(blk);
 
     return 0;
 }
 
-void MemoryAllocator::tryToMerge(FreeBlock* cur)  {
-
-    if (!cur)
+void MemoryAllocator::tryToMerge(FreeBlock* blk)  {
+    if (!blk)
         return ;
 
-    if (cur->next && (char*)cur+cur->size == (char*)(cur->next)) {
-        // Remove the cur->next segment:
-        cur->size += cur->next->size;
-        cur->next = cur->next->next;
-        if (cur->next) cur->next->prev = cur;
+    if (blk->next && (char*)blk + blk->size == (char*)(blk->next)) {
+        blk->size += blk->next->size;
+        blk->size += sizeof(FreeBlock);
+        blk->next = blk->next->next;
+        if (blk->next) blk->next->prev = blk;
     }
 }

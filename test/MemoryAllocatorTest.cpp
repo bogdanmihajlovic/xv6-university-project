@@ -45,7 +45,7 @@ void mallocFree(MemoryAllocator& allocator){
         }
     }
 
-    for(int i = 0 ; i<num;i+=2){
+    for(int i = 0 ; i<num ; i+=2){
         int retval = allocator.freeMemory(addrs[i]);
         if(retval != 0){
             printString("not ok\n");
