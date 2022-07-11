@@ -8,7 +8,7 @@
 #define _memoryAllocator_hpp
 
 #include "../lib/hw.h"
-#include "../lib/console.h"
+
 class MemoryAllocator{
 
 public:
@@ -25,12 +25,14 @@ public:
     MemoryAllocator& operator=(const MemoryAllocator&) = delete;
     MemoryAllocator& operator=(MemoryAllocator&&) = delete;
 
-    static MemoryAllocator& instance();
-    void* memoryMalloc(size_t);
+    static MemoryAllocator& getInstance();
+    void* getMemory(size_t);
+    int freeMemory(void*);
 
 private:
     FreeBlock *head, *tail;
     MemoryAllocator();
+    int tryToMerge(FreeBlock* );
 
 };
 
