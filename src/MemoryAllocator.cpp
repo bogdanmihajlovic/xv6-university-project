@@ -19,7 +19,7 @@ MemoryAllocator& MemoryAllocator::getInstance() {
 }
 
 
-void* MemoryAllocator::getMemory(size_t size)  {
+void* MemoryAllocator::IGetMemory(size_t size)  {
     FreeBlock* blk = head;
 
     // round size to MEM_BLOCK_SIZE
@@ -67,7 +67,7 @@ void* MemoryAllocator::getMemory(size_t size)  {
 }
 
 
-int MemoryAllocator::freeMemory(void* addr) {
+int MemoryAllocator::IFreeMemory(void* addr) {
 
     // Check address
     if( addr == 0 || (char*)addr < HEAP_START_ADDR || (char*)addr > HEAP_END_ADDR){

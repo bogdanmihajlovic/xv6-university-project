@@ -4,10 +4,11 @@
 
 
 
-#ifndef _memoryAllocator_hpp
-#define _memoryAllocator_hpp
+#ifndef OS_PROJEKAT_MEMORYALLOCATOR_HPP
+#define OS_PROJEKAT_MEMORYALLOCATOR_HPP
 
 #include "../lib/hw.h"
+#include "../lib/console.h"
 
 class MemoryAllocator{
 
@@ -26,10 +27,13 @@ public:
     MemoryAllocator& operator=(MemoryAllocator&&) = delete;
 
     static MemoryAllocator& getInstance();
-    void* getMemory(size_t);
-    int freeMemory(void*);
+    static void* getMemory(size_t size) { return getInstance().IGetMemory(size); }
+    static int freeMemory(void* addr) { return getInstance().IFreeMemory(addr); }
+
 
 private:
+    void* IGetMemory(size_t);
+    int IFreeMemory(void*);
     FreeBlock *head, *tail;
     MemoryAllocator();
     void tryToMerge(FreeBlock* );
