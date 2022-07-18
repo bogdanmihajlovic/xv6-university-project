@@ -3,7 +3,10 @@
 //
 #include "../test/MemoryAllocatorTest.hpp"
 
-
+void printInteger(uint64 n){
+    printInt(n);
+    __putc('\n');
+}
 
 void printString(const char *string){
     char c;
@@ -28,10 +31,6 @@ void printInt(uint64 n){
     __putc(n%10 + '0');
 }
 
-void printInteger(uint64 n){
-    printInt(n);
-    __putc('\n');
-}
 
 void mallocFree(){
     printString("mallocFree\n");
