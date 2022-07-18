@@ -5,8 +5,9 @@
 #ifndef OS_PROJEKAT_MEMORYALLOCATORTEST_HPP
 #define OS_PROJEKAT_MEMORYALLOCATORTEST_HPP
 
-#include "../lib/console.h"
+
 #include "../h/MemoryAllocator.hpp"
+#include "../h/syscall_c.hpp"
 
 class Test{
 public:
@@ -17,10 +18,10 @@ void printString(const char *);
 void readString(char []);
 void printInt(uint64 );
 
-void mallocFree(MemoryAllocator& allocator);
-void bigMalloc(MemoryAllocator& allocator);
-void lotOfSmallMallocs(MemoryAllocator& allocator);
-void stressTesting(MemoryAllocator& allocator);
+void mallocFree();
+void bigMalloc();
+void lotOfSmallMallocs();
+void stressTesting();
 
 
 
