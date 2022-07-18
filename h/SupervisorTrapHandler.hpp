@@ -8,6 +8,8 @@
 #include "../lib/console.h"
 #include "../lib/hw.h"
 #include "../h/riscv.hpp"
+#include "../h/syscall_c.hpp"
+#include "../h/MemoryAllocator.hpp"
 
 extern "C" void supervisorTrapHandler();
 

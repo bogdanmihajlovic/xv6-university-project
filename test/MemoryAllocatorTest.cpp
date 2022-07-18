@@ -3,7 +3,10 @@
 //
 #include "../test/MemoryAllocatorTest.hpp"
 
-
+void printInteger(uint64 n){
+    printInt(n);
+    __putc('\n');
+}
 
 void printString(const char *string){
     char c;
@@ -28,17 +31,13 @@ void printInt(uint64 n){
     __putc(n%10 + '0');
 }
 
-void printInteger(uint64 n){
-    printInt(n);
-    __putc('\n');
-}
 
-void mallocFree(MemoryAllocator& allocator){
+void mallocFree(){
     printString("mallocFree\n");
     constexpr int num = 100;
     void* addrs[num];
     for(int i = 0; i<num;i++){
-        addrs[i] = allocator.getMemory(100);
+        addrs[i] = mem_alloc(100);
         if(addrs[i] == 0){
             printString("not ok\n");
             return;
@@ -46,7 +45,7 @@ void mallocFree(MemoryAllocator& allocator){
     }
 
     for(int i = 0 ; i<num ; i+=2){
-        int retval = allocator.freeMemory(addrs[i]);
+        int retval = mem_free(addrs[i]);
         if(retval != 0){
             printString("not ok\n");
             return;
@@ -54,7 +53,7 @@ void mallocFree(MemoryAllocator& allocator){
     }
 
     for(int i = 0 ; i<num;i+=2){
-        addrs[i] = allocator.getMemory(20);
+        addrs[i] = mem_alloc(20);
         if(addrs[i] == 0){
             printString("not ok\n");;
             return;
@@ -62,7 +61,7 @@ void mallocFree(MemoryAllocator& allocator){
     }
 
     for(int i = 0; i<num;i++){
-        int retval = allocator.freeMemory(addrs[i]);
+        int retval = mem_free(addrs[i]);
         if(retval != 0){
             printString("not ok\n");;
             return;
@@ -73,11 +72,11 @@ void mallocFree(MemoryAllocator& allocator){
 }
 
 
-void bigMalloc(MemoryAllocator& allocator){
+void bigMalloc(){
 
     printString("big Malloc\n");;
     size_t x = (size_t)HEAP_END_ADDR - (size_t)HEAP_START_ADDR + 100UL;
-    void* p = allocator.getMemory(x);
+    void* p = mem_alloc(x);
     if(p == 0) printString("ok\n");
     else printString("not ok\n");
 }
@@ -86,7 +85,7 @@ void bigMalloc(MemoryAllocator& allocator){
 
 
 
-void lotOfSmallMallocs(MemoryAllocator& allocator){
+void lotOfSmallMallocs(){
 
     printString("lotOfSmallMallocs\n");;
     uint64 cnt = 0;
@@ -94,7 +93,7 @@ void lotOfSmallMallocs(MemoryAllocator& allocator){
     uint64 N = 1000000UL;
     uint64 X = 10UL;
     for(uint64 i = 0; i<N;i++){
-        Test* t = (Test*)allocator.getMemory(sizeof(Test));
+        Test* t = (Test*)mem_alloc(sizeof(Test));
         if(t == 0)break;
         t->a = X;
         sum+=t->a;
@@ -108,12 +107,13 @@ void lotOfSmallMallocs(MemoryAllocator& allocator){
 
 
 
-void stressTesting(MemoryAllocator& allocator){
+void stressTesting(){
     printString("stressTesting\n");
     constexpr int num = 465;
     void* addrs[num];
     for(int i = 0; i<num;i++){
-        addrs[i] = allocator.getMemory(1);
+        printString("mem_alloc started\n");
+        addrs[i] = mem_alloc(1);
         if(addrs[i] == 0){
             printString("not ok\n");
             return;
@@ -127,13 +127,13 @@ void stressTesting(MemoryAllocator& allocator){
             printString("i:");
             printInteger(i);
             printString("free\n");
-            int retval = allocator.freeMemory(addrs[i]);
+            int retval = mem_free(addrs[i]);
             if(retval != 0){
                 printString("not ok\n");
                 return;
             }
             printString("alloc\n");
-            addrs[i] = allocator.getMemory(sz*2);
+            addrs[i] = mem_alloc(sz*2);
             if(addrs[i] == 0){
                 printString("not ok\n");;
                 return;
@@ -143,13 +143,13 @@ void stressTesting(MemoryAllocator& allocator){
             printString("i:");
             printInteger(i);
             printString("free\n");
-            int retval = allocator.freeMemory(addrs[i]);
+            int retval = mem_free(addrs[i]);
             if(retval != 0){
                 printString("not ok\n");
                 return;
             }
             printString("alloc\n");
-            addrs[i] = allocator.getMemory(sz);
+            addrs[i] = mem_alloc(sz);
             if(addrs[i] == 0){
                 printString("not ok\n");;
                 return;
