@@ -5,6 +5,8 @@
 supervisorTrap:
     addi sp, sp, -256
 
+
+
     sd x0, 0x00(sp)
     sd x1, 0x08(sp)
     sd x2, 0x10(sp)
@@ -38,8 +40,17 @@ supervisorTrap:
     sd x30, 0xf0(sp)
     sd x31, 0xf8(sp)
 
+
     call supervisorTrapHandler
 
+    csrr a1, scause
+    addi a1, a1, -8
+    beqz a1, syscall
+    addi a1, a1, -1
+    bnez a1, other
+syscall:
+    sd x10, 0x50(sp)
+other:
     ld x0, 0x00(sp)
     ld x1, 0x08(sp)
     ld x2, 0x10(sp)

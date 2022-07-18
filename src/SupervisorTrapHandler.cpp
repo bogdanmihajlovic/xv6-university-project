@@ -24,20 +24,23 @@ extern "C" void supervisorTrapHandler(){
 
 
     if(scause == 0x08 || scause == 0x09){ // ecall
-        if(a0 == 0x01){ // mem_alloc
-
-            void* ret1 = MemoryAllocator::getMemory((size_t)a1);
-            __asm__ volatile("sd %0, 0x50(sp)": : "r" (ret1));
-
-        }else if(a0 == 0x02){ // mem_free
-            int ret2 = MemoryAllocator::freeMemory((void*)a1);
-            __asm__ volatile("sd %0, 0x50(sp)": : "r" (ret2));
-        }
 
         uint64 sepc;
         __asm__ volatile ("csrr %[sepc], sepc" : [sepc] "=r"(sepc));
         sepc += 4;
         __asm__ volatile ("csrw sepc, %[sepc]" : : [sepc] "r"(sepc));
+
+
+        uint64 ret = 0;
+        if(a0 == 0x01){ // mem_alloc
+            ret = (uint64)MemoryAllocator::getMemory((size_t)a1);
+
+        }else if(a0 == 0x02){ // mem_free
+            ret = MemoryAllocator::freeMemory((void*)a1);
+        }
+
+       // __asm__ volatile("sd %0, 0x50(sp)": : "r" (ret));
+        a0 = ret;
     }
 
 
