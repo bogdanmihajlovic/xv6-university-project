@@ -4,11 +4,7 @@
 
 extern "C" void supervisorTrapHandler(){
 
-    // TODO srediti ret vrednost
-
-
     uint64 a0, a1, a2, a3, a4, a5, a6, a7;
-
 
     __asm__ volatile ("mv %0, a7" : "=r" (a7));
     __asm__ volatile ("mv %0, a6" : "=r" (a6));
@@ -19,30 +15,30 @@ extern "C" void supervisorTrapHandler(){
     __asm__ volatile ("mv %0, a1" : "=r" (a1));
     __asm__ volatile ("mv %0, a0" : "=r" (a0));
 
+    uint64 operation = a0;
+
     uint64 scause;
     __asm__ ("csrr %[scause], scause" : [scause] "=r"(scause));
+    // TODO Riscv r_scause
 
-
-    if(scause == 0x08 || scause == 0x09){ // ecall
+    if(scause == ECALL_SYS || scause == ECALL_USER){
 
         uint64 sepc;
         __asm__ volatile ("csrr %[sepc], sepc" : [sepc] "=r"(sepc));
         sepc += 4;
         __asm__ volatile ("csrw sepc, %[sepc]" : : [sepc] "r"(sepc));
-
+        // TODO zameni sa Riscv funkcijom r_sepc i w_sepc
 
         uint64 ret = 0;
-        if(a0 == 0x01){ // mem_alloc
+
+        if(operation== MEM_ALLOC){
             ret = (uint64)MemoryAllocator::getMemory((size_t)a1);
 
-        }else if(a0 == 0x02){ // mem_free
-            ret = MemoryAllocator::freeMemory((void*)a1);
+        }else if(operation == MEM_FREE){
+            ret = (uint64)MemoryAllocator::freeMemory((void*)a1);
         }
-
-       // __asm__ volatile("sd %0, 0x50(sp)": : "r" (ret));
         a0 = ret;
     }
-
 
 
     __asm__ volatile("mv a7, %0" : : "r"(a7));
