@@ -83,7 +83,7 @@ public:
     static void w_sstatus(uint64 sstatus);
 
 private:
-
+    static void supervisorTrapHandler();
 };
 
 inline uint64 Riscv::r_scause()
