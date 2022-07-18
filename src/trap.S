@@ -2,7 +2,6 @@
 .global supervisorTrap
 .align 4
 
-
 supervisorTrap:
     addi sp, sp, -256
 
