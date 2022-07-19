@@ -6,6 +6,8 @@
 #include "../h/syscall_c.h"
 #include "../h/MemoryAllocator.hpp"
 #include "../h/TCB.hpp"
+#include "../h/_sem.hpp"
+
 using Body = void(*)(void*);
 
 void Riscv::popSppSpie()
@@ -52,7 +54,19 @@ void Riscv::supervisorTrapHandler(){
             ret = TCB::stopThread();
         }else if(operation == THREAD_DISPATCH){
             TCB::yield();
+        }else if(operation == SEM_OPEN){
+            ret = _sem::createSemaphore((sem_t*)a1, (unsigned)a2);
+        }else if(operation == SEM_CLOSE){
+            sem_t id = (sem_t)a1;
+            // TODO id->close();
+        }else if(operation == SEM_WAIT){
+            sem_t semaphore = (sem_t)a1;
+            semaphore->wait();
+        }else if(operation == SEM_SIGNAL){
+            sem_t semaphore = (sem_t)a1;
+            semaphore->signal();
         }
+
         a0 = ret;
     }
 
