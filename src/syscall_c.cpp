@@ -35,6 +35,7 @@ int mem_free(void* addr){
     return (int)ret;
 }
 
+
 int thread_create(thread_t* handle, void(*start_routine)(void*), void* arg){
 
     void* stack = mem_alloc(sizeof(uint64) * DEFAULT_STACK_SIZE);
@@ -59,7 +60,50 @@ int thread_exit (){
 
     return (int)ret;
 }
+
+
 void thread_dispatch (){
     __asm__ volatile("mv a0, %[var]" : : [var] "r"(THREAD_DISPATCH));
     __asm__ volatile("ecall");
+}
+
+int sem_open (sem_t* handle, unsigned init){
+    __asm__ volatile("mv a2, %[var]" : : [var] "r"(init));
+    __asm__ volatile("mv a1, %[var]" : : [var] "r"(handle));
+    __asm__ volatile("mv a0, %[var]" : : [var] "r"(SEM_OPEN));
+    __asm__ volatile("ecall");
+    uint64 volatile ret;
+    __asm__ volatile ("mv %0, a0" : "=r" (ret));
+
+    return (int)ret;
+}
+
+int sem_close(sem_t handle){
+    __asm__ volatile("mv a1, %[var]" : : [var] "r"(handle));
+    __asm__ volatile("mv a0, %[var]" : : [var] "r"(SEM_CLOSE));
+    __asm__ volatile("ecall");
+    uint64 volatile ret;
+    __asm__ volatile ("mv %0, a0" : "=r" (ret));
+
+    return (int)ret;
+}
+
+int sem_wait (sem_t id){
+    __asm__ volatile("mv a1, %[var]" : : [var] "r"(id));
+    __asm__ volatile("mv a0, %[var]" : : [var] "r"(SEM_WAIT));
+    __asm__ volatile("ecall");
+    uint64 volatile ret;
+    __asm__ volatile ("mv %0, a0" : "=r" (ret));
+
+    return (int)ret;
+}
+
+int sem_signal(sem_t id){
+    __asm__ volatile("mv a1, %[var]" : : [var] "r"(id));
+    __asm__ volatile("mv a0, %[var]" : : [var] "r"(SEM_SIGNAL));
+    __asm__ volatile("ecall");
+    uint64 volatile ret;
+    __asm__ volatile ("mv %0, a0" : "=r" (ret));
+
+    return (int)ret;
 }
