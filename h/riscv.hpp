@@ -82,6 +82,8 @@ public:
     // write register sstatus
     static void w_sstatus(uint64 sstatus);
 
+    static void supervisorTrap();
+
 private:
     static void supervisorTrapHandler();
 };
