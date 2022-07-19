@@ -3,8 +3,10 @@
 //
 
 #include "../h/riscv.hpp"
-#include "../h/syscall_c.hpp"
+#include "../h/syscall_c.h"
 #include "../h/MemoryAllocator.hpp"
+#include "../h/TCB.hpp"
+using Body = void(*)(void*);
 
 void Riscv::popSppSpie()
 {
@@ -45,6 +47,12 @@ void Riscv::supervisorTrapHandler(){
 
         }else if(operation == MEM_FREE){
             ret = (uint64)MemoryAllocator::freeMemory((void*)a1);
+        }else if(operation == THREAD_CREATE){
+            ret = TCB::createThread((thread_t)a1, (Body)a2, (void*)a3, (uint64*)a4);
+        }else if(operation == THREAD_EXIT){
+
+        }else if(operation == THREAD_DISPATCH){
+            TCB::yield();
         }
         a0 = ret;
     }
