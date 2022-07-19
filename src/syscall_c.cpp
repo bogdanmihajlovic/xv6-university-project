@@ -2,7 +2,7 @@
 // Created by bogdan on 18.7.22..
 //
 
-#include "../h/syscall_c.hpp"
+#include "../h/syscall_c.h"
 
 extern "C" void* mem_alloc(size_t size){
 
