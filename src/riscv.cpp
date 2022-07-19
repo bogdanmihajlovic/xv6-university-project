@@ -44,19 +44,17 @@ void Riscv::supervisorTrapHandler(){
 
         if(operation== MEM_ALLOC){
             ret = (uint64)MemoryAllocator::getMemory((size_t)a1);
-
         }else if(operation == MEM_FREE){
             ret = (uint64)MemoryAllocator::freeMemory((void*)a1);
         }else if(operation == THREAD_CREATE){
-            ret = TCB::createThread((thread_t)a1, (Body)a2, (void*)a3, (uint64*)a4);
+            ret = TCB::createThread((thread_t*)a1, (Body)a2, (void*)a3, (uint64*)a4);
         }else if(operation == THREAD_EXIT){
-
+            ret = TCB::stopThread();
         }else if(operation == THREAD_DISPATCH){
             TCB::yield();
         }
         a0 = ret;
     }
-
 
     __asm__ volatile("mv a7, %0" : : "r"(a7));
     __asm__ volatile("mv a6, %0" : : "r"(a6));
