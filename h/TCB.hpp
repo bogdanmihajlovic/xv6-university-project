@@ -9,16 +9,17 @@
 #include "../lib/hw.h"
 #include "../h/scheduler.hpp"
 #include "../h/syscall_c.h"
-
+#include "../h/print.hpp"
 class TCB {
 public:
+    int pid;
     using Body = void (*)(void*);
 
     bool isFinished() const { return finished; }
     void setFinished(bool finished) { this->finished = finished; }
 
-    static int createThread(thread_t handle, Body body, void* args, uint64* st);
-
+    static int createThread(thread_t* handle, Body body, void* args, uint64* st);
+    static int stopThread();
 
     static void yield();
 
@@ -33,10 +34,8 @@ private:
         context( { body != nullptr ? (uint64)body : 0, (uint64)&stack[DEFAULT_STACK_SIZE]}),
         finished(false) {
 
-        if(running)
-            Scheduler::put(this);
-        else
-            running = this;
+        pid = ++counter;
+        if (body != nullptr) Scheduler::put(this);
 
     }
 
@@ -54,6 +53,6 @@ private:
 
     static void contextSwitch(Context* oldContext, Context* newContext);
     static void dispatch();
-
+    static int counter;
 };
 #endif //OS_PROJEKAT_TCB_HPP

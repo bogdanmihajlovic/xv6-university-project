@@ -16,18 +16,24 @@ void TCB::dispatch(){
     TCB* old = running;
     if(!old->isFinished()){
         Scheduler::put(old);
+
     }
     running = Scheduler::get();
     TCB::contextSwitch(&old->context, &running->context);
 }
 
 
-int TCB::createThread(thread_t handle, Body body, void* args, uint64* stack) {
-    handle = new TCB(body, args, stack);
-    if(!handle)
-        return -1;
-    if(!handle && stack) delete stack;
-    return 0;
+int TCB::createThread(thread_t* handle, Body body, void* args, uint64* stack) {
+    TCB* thread  = new TCB(body, args, stack);
+    *handle = thread;
+    return 0; // TODO obrada greske
+}
+
+int TCB::stopThread() {
+    running->setFinished(true);
+    yield();
+    return 0; // TODO obrada greske
 }
 
 TCB* TCB::running = nullptr;
+int TCB::counter = 0;
