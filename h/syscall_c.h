@@ -17,4 +17,9 @@ enum code {
 extern "C" void* mem_alloc(size_t );
 extern "C" int mem_free(void*);
 
+class _thread;
+typedef _thread* thread_t;
+int thread_create ( thread_t* handle, void(*start_routine)(void*), void* arg);
+int thread_exit ();
+void thread_dispatch ();
 #endif //OS_PROJEKAT_SYSCALL_C_HPP
