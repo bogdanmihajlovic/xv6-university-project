@@ -31,11 +31,17 @@ private:
         body(body),
         args(args),
         stack(stack),
-        context( { body != nullptr ? (uint64)body : 0, (uint64)&stack[DEFAULT_STACK_SIZE]}),
-        finished(false) {
+        context({(uint64)&threadWrapper, stack != nullptr ? (uint64)&stack[DEFAULT_STACK_SIZE] : 0}),
+        finished(false),
+        timeSlice(DEFAULT_TIME_SLICE){
 
-        pid = ++counter;
-        if (body != nullptr) Scheduler::put(this);
+          pid = ++counter;
+          if (body != nullptr) {
+              Scheduler::put(this);
+
+          }else{
+              this->finished = true;
+          }
 
     }
 
@@ -48,11 +54,15 @@ private:
     void* args;
     uint64* stack;
     Context context;
-
     bool finished;
+    uint64 timeSlice;
 
+    static void threadWrapper();
+
+    friend class Riscv;
     static void contextSwitch(Context* oldContext, Context* newContext);
     static void dispatch();
     static int counter;
+    static uint64 timeSliceCounter;
 };
 #endif //OS_PROJEKAT_TCB_HPP

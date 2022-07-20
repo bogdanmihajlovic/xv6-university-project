@@ -5,18 +5,18 @@
 #include "../h/TCB.hpp"
 #include "../h/riscv.hpp"
 #include "../h/scheduler.hpp"
+// TODO brisanje steka
+
 
 void TCB::yield() {
-    Riscv::pushRegisters();
-    TCB::dispatch();
-    Riscv::popRegisters();
+    __asm__ volatile("ecall");
 }
 
 void TCB::dispatch(){
+
     TCB* old = running;
     if(!old->isFinished()){
         Scheduler::put(old);
-
     }
     running = Scheduler::get();
     TCB::contextSwitch(&old->context, &running->context);
@@ -31,9 +31,17 @@ int TCB::createThread(thread_t* handle, Body body, void* args, uint64* stack) {
 
 int TCB::stopThread() {
     running->setFinished(true);
-    yield();
+    TCB::yield();
     return 0; // TODO obrada greske
 }
 
+void TCB::threadWrapper(){
+    Riscv::popSppSpie();
+    running->body(running->args);
+    running->setFinished(true);
+    TCB::yield();
+};
+
+uint64 TCB::timeSliceCounter = 0;
 TCB* TCB::running = nullptr;
 int TCB::counter = 0;
