@@ -60,7 +60,7 @@ void Riscv::supervisorTrapHandler(){
         }else if(operation == SEM_SIGNAL){
             sem_t semaphore = (sem_t)a1;
             semaphore->signal();
-        }else if(operation == THREAD_NEW){
+        }else if(operation == THREAD_YIELD){
             TCB::timeSliceCounter = 0;
             TCB::dispatch();
         }

@@ -9,7 +9,7 @@
 
 
 void TCB::yield() {
-    __asm__ volatile("mv a0, %[var]" : : [var] "r"(THREAD_NEW));
+    __asm__ volatile("mv a0, %[var]" : : [var] "r"(THREAD_YIELD));
     __asm__ volatile("ecall");
 }
 
@@ -33,7 +33,7 @@ int TCB::createThread(thread_t* handle, Body body, void* args, uint64* stack) {
 int TCB::stopThread() {
     running->setFinished(true);
     TCB::yield();
-    return 0; // TODO obrada greske
+    return 0;
 }
 
 void TCB::threadWrapper(){

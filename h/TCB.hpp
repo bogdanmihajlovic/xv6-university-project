@@ -26,7 +26,7 @@ public:
     static TCB* running;
 
     ~TCB(){
-        delte[] stack;
+        delete[] stack;
         stack = 0;
     };
 private:
