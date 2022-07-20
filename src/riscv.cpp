@@ -10,8 +10,7 @@
 
 using Body = void(*)(void*);
 
-void Riscv::popSppSpie()
-{
+void Riscv::popSppSpie() {
     __asm__ volatile ("csrw sepc, ra");
     __asm__ volatile ("sret");
 }
@@ -32,18 +31,14 @@ void Riscv::supervisorTrapHandler(){
 
     uint64 operation = a0;
 
-    uint64 scause;
-    scause = Riscv::r_scause();
+    uint64 volatile scause;
+    scause = r_scause();
+    uint64 volatile sepc = r_sepc();
+    uint64 sstatus = r_sstatus();
 
     if(scause == ECALL_SYS || scause == ECALL_USER){
 
-        uint64 sepc;
-        sepc = Riscv::r_sepc();
-        sepc += 4;
-        Riscv::w_sepc(sepc);
-
         uint64 ret = 0;
-
         if(operation== MEM_ALLOC){
             ret = (uint64)MemoryAllocator::getMemory((size_t)a1);
         }else if(operation == MEM_FREE){
@@ -57,7 +52,7 @@ void Riscv::supervisorTrapHandler(){
         }else if(operation == SEM_OPEN){
             ret = _sem::createSemaphore((sem_t*)a1, (unsigned)a2);
         }else if(operation == SEM_CLOSE){
-            sem_t id = (sem_t)a1;
+            //sem_t id = (sem_t)a1;
             // TODO id->close();
         }else if(operation == SEM_WAIT){
             sem_t semaphore = (sem_t)a1;
@@ -65,9 +60,28 @@ void Riscv::supervisorTrapHandler(){
         }else if(operation == SEM_SIGNAL){
             sem_t semaphore = (sem_t)a1;
             semaphore->signal();
+        }else if(operation == THREAD_NEW){
+            TCB::timeSliceCounter = 0;
+            TCB::dispatch();
         }
-
+        w_sstatus(sstatus);
+        w_sepc(sepc + 4);
         a0 = ret;
+    }else if(scause == TIMER){
+        TCB::timeSliceCounter++;
+        if(TCB::timeSliceCounter >= DEFAULT_TIME_SLICE){
+            TCB::timeSliceCounter = 0;
+            TCB::dispatch();
+            w_sstatus(sstatus);
+            w_sepc(sepc);
+        }
+        mc_sip(SIP_SSIP);
+    }else if(scause == CONSOLE){
+        console_handler();
+    }else{
+        // print(scause)
+        // print(sepc)
+        // print(stval)
     }
 
     __asm__ volatile("mv a7, %0" : : "r"(a7));
@@ -80,5 +94,4 @@ void Riscv::supervisorTrapHandler(){
     __asm__ volatile("mv a0, %0" : : "r"(a0));
 
 
-    console_handler();
 }

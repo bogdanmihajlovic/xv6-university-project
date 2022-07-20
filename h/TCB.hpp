@@ -25,6 +25,10 @@ public:
 
     static TCB* running;
 
+    ~TCB(){
+        delte[] stack;
+        stack = 0;
+    };
 private:
 
     TCB(Body body, void* args, uint64* stack) :
@@ -38,9 +42,6 @@ private:
           pid = ++counter;
           if (body != nullptr) {
               Scheduler::put(this);
-
-          }else{
-              this->finished = true;
           }
 
     }
