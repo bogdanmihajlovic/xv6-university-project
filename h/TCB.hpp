@@ -10,13 +10,15 @@
 #include "../h/scheduler.hpp"
 #include "../h/syscall_c.h"
 #include "../h/print.hpp"
+
 class TCB {
 public:
+    enum threadStatus {FINISHED, RUNNING, BLOCKED};
     int pid;
     using Body = void (*)(void*);
 
-    bool isFinished() const { return finished; }
-    void setFinished(bool finished) { this->finished = finished; }
+    void setStatus(threadStatus status) { this->status = status; }
+    threadStatus getStatus() const { return status; }
 
     static int createThread(thread_t* handle, Body body, void* args, uint64* st);
     static int stopThread();
@@ -36,8 +38,8 @@ private:
         args(args),
         stack(stack),
         context({(uint64)&threadWrapper, stack != nullptr ? (uint64)&stack[DEFAULT_STACK_SIZE] : 0}),
-        finished(false),
-        timeSlice(DEFAULT_TIME_SLICE){
+        timeSlice(DEFAULT_TIME_SLICE),
+        status(RUNNING){
 
           pid = ++counter;
           if (body != nullptr) {
@@ -55,8 +57,8 @@ private:
     void* args;
     uint64* stack;
     Context context;
-    bool finished;
     uint64 timeSlice;
+    enum threadStatus status;
 
     static void threadWrapper();
 

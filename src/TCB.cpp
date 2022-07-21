@@ -14,9 +14,8 @@ void TCB::yield() {
 }
 
 void TCB::dispatch(){
-
     TCB* old = running;
-    if(!old->isFinished()){
+    if(old->getStatus() == RUNNING){
         Scheduler::put(old);
     }
     running = Scheduler::get();
@@ -31,7 +30,7 @@ int TCB::createThread(thread_t* handle, Body body, void* args, uint64* stack) {
 }
 
 int TCB::stopThread() {
-    running->setFinished(true);
+    running->setStatus(FINISHED);
     TCB::yield();
     return 0;
 }
@@ -39,7 +38,7 @@ int TCB::stopThread() {
 void TCB::threadWrapper(){
     Riscv::popSppSpie();
     running->body(running->args);
-    running->setFinished(true);
+    running->setStatus(FINISHED);
     TCB::yield();
 }
 
