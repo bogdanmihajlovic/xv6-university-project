@@ -13,7 +13,7 @@
 
 class TCB {
 public:
-    enum threadStatus {FINISHED, RUNNING, BLOCKED};
+    enum threadStatus {FINISHED, RUNNING, BLOCKED, SLEEPING};
     int pid;
     using Body = void (*)(void*);
 
@@ -22,8 +22,8 @@ public:
 
     static int createThread(thread_t* handle, Body body, void* args, uint64* st);
     static int stopThread();
-
     static void yield();
+
 
     static TCB* running;
 
@@ -67,5 +67,6 @@ private:
     static void dispatch();
     static int counter;
     static uint64 timeSliceCounter;
+    friend class SleepList;
 };
 #endif //OS_PROJEKAT_TCB_HPP
