@@ -7,8 +7,8 @@
 
 List<SleepList::Sleep> SleepList::sleepingThreads;
 
-void SleepList::put(SleepList::Sleep* elem, size_t sleepTime) {
-
+void SleepList::put(TCB* thread, time_t sleepTime) {
+    SleepList::Sleep* elem = new SleepList::Sleep(thread); // TODO destruktor
     sleepingThreads.resetCurrent();
     Sleep* p = sleepingThreads.getCurrent();
     //Sleep* prev = nullptr;
@@ -53,16 +53,24 @@ void SleepList::printSleepList() {
     }
 }
 
-void SleepList::decrement() {
+int SleepList::decrement() {
     Sleep* p = sleepingThreads.peekFirst();
+    if(!p)
+        return 0;
     p->difference--;
+    return 1;
 }
 
-time_t SleepList::getTime() {
-    Sleep* p = sleepingThreads.peekFirst();
-    if(p)
-        return p->difference;
-    else
-        return -1;
 
+void SleepList::releaseThreads(){
+    if(!decrement())
+        return;
+    Sleep* p = sleepingThreads.peekFirst();
+    while(p && p->difference == 0){
+        TCB* t = p->thread;
+        t->status = TCB::RUNNING;
+        sleepingThreads.removeFirst();
+        Scheduler::put(t);
+        p = sleepingThreads.peekFirst();
+    }
 }
