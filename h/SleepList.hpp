@@ -11,14 +11,18 @@
 class SleepList{
 public:
     struct Sleep{
-        time_t realTime;
         time_t difference;
         //TCB* thread;
-        Sleep(time_t real) : realTime(real) {}
+        //Sleep(time_t real) : realTime(real) {}
     };
 
-    static void put(Sleep* elem);
+    static void put(Sleep* elem, size_t);
     static void printSleepList();
+    static Sleep* peekFirst();
+    static Sleep* removeFirst();
+    static void decrement();
+    static time_t getTime();
+
 private:
     static List<Sleep> sleepingThreads;
 };
