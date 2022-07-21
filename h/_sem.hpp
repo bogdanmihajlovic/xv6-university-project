@@ -14,6 +14,7 @@ public:
 
     void wait();
     void signal();
+    int close();
 protected:
     void block();
     void unblock();

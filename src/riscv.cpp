@@ -35,7 +35,6 @@ void Riscv::supervisorTrapHandler(){
     scause = r_scause();
     uint64 volatile sepc = r_sepc();
     uint64 sstatus = r_sstatus();
-
     if(scause == ECALL_SYS || scause == ECALL_USER){
 
         uint64 ret = 0;
@@ -52,8 +51,8 @@ void Riscv::supervisorTrapHandler(){
         }else if(operation == SEM_OPEN){
             ret = _sem::createSemaphore((sem_t*)a1, (unsigned)a2);
         }else if(operation == SEM_CLOSE){
-            //sem_t id = (sem_t)a1;
-            // TODO id->close();
+            sem_t id = (sem_t)a1;
+            id->close();
         }else if(operation == SEM_WAIT){
             sem_t semaphore = (sem_t)a1;
             semaphore->wait();

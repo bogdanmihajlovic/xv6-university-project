@@ -10,27 +10,34 @@ int _sem::createSemaphore(sem_t *handle, unsigned int i) {
 }
 
 void _sem::wait() {
-    // TODO lock()
     if(--value < 0)
         block();
-    // TODO unlock()
+    // TODO obrada greske za wait
 }
 
 void _sem::signal() {
-    // TODO lock()
     if(++value <= 0)
         unblock();
-    // TODO unlock()
 }
 
 void _sem::block() {
+    TCB::running->setStatus(TCB::BLOCKED);
     blocked.addLast(TCB::running);
-    // TODO sredi TCB klasu
+    thread_dispatch();
 }
 
 void _sem::unblock() {
     TCB* t = blocked.removeFirst();
+    t->setStatus(TCB::RUNNING);
     Scheduler::put(t);
 }
 
-
+int _sem::close(){
+    TCB* thread;
+    for(thread = blocked.removeFirst(); thread;){
+        thread->setStatus(TCB::RUNNING);
+        Scheduler::put(thread);
+        thread = blocked.removeFirst();
+    }
+    return 0;
+}
