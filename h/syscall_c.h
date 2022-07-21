@@ -18,6 +18,7 @@ enum code {
     SEM_CLOSE = 0x22,
     SEM_WAIT = 0x23,
     SEM_SIGNAL = 0x24,
+    TIME_SLEEP = 0x31,
     ECALL_USER = 0x08,
     ECALL_SYS = 0x09,
     TIMER = 0x8000000000000001UL, // supervisor software interrupt

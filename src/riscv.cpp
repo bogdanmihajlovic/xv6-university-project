@@ -7,7 +7,7 @@
 #include "../h/MemoryAllocator.hpp"
 #include "../h/TCB.hpp"
 #include "../h/_sem.hpp"
-
+#include "../h/SleepList.hpp"
 using Body = void(*)(void*);
 
 void Riscv::popSppSpie() {
@@ -62,11 +62,17 @@ void Riscv::supervisorTrapHandler(){
         }else if(operation == THREAD_YIELD){
             TCB::timeSliceCounter = 0;
             TCB::dispatch();
+        }else if(operation == TIME_SLEEP){
+            time_t time = (time_t)a1;
+            SleepList::put(TCB::running, time);
+            TCB::running->setStatus(TCB::SLEEPING);
+            TCB::dispatch();
         }
         w_sstatus(sstatus);
         w_sepc(sepc + 4);
         a0 = ret;
     }else if(scause == TIMER){
+        SleepList::releaseThreads();
         TCB::timeSliceCounter++;
         if(TCB::timeSliceCounter >= DEFAULT_TIME_SLICE){
             TCB::timeSliceCounter = 0;
