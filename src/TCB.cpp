@@ -22,7 +22,6 @@ void TCB::dispatch(){
     TCB::contextSwitch(&old->context, &running->context);
 }
 
-
 int TCB::createThread(thread_t* handle, Body body, void* args, uint64* stack) {
     TCB* thread  = new TCB(body, args, stack);
     *handle = thread;
@@ -31,7 +30,7 @@ int TCB::createThread(thread_t* handle, Body body, void* args, uint64* stack) {
 
 int TCB::stopThread() {
     running->setStatus(FINISHED);
-    TCB::yield();
+    TCB::dispatch();
     return 0;
 }
 
