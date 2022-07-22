@@ -1,23 +1,21 @@
-#include "buffer.hpp"
+#include "../h/_buffer.hpp"
 
-Buffer::Buffer(int _cap) : cap(_cap + 1), head(0), tail(0) {
-    buffer = (int *)mem_alloc(sizeof(int) * cap);
+
+_buffer::_buffer(int _cap) : cap(_cap + 1), head(0), tail(0) {
+    buffer = (char*)mem_alloc(sizeof(char) * cap);
     sem_open(&itemAvailable, 0);
     sem_open(&spaceAvailable, _cap);
     sem_open(&mutexHead, 1);
     sem_open(&mutexTail, 1);
 }
 
-Buffer::~Buffer() {
-    putc('\n');
-    printString("Buffer deleted!\n");
+_buffer::~_buffer() {
+
     while (getCnt() > 0) {
         char ch = buffer[head];
-        putc(ch);
         head = (head + 1) % cap;
     }
-    putc('!');
-    putc('\n');
+
 
     mem_free(buffer);
     sem_close(itemAvailable);
@@ -26,7 +24,7 @@ Buffer::~Buffer() {
     sem_close(mutexHead);
 }
 
-void Buffer::put(int val) {
+void _buffer::put(char val) {
     sem_wait(spaceAvailable);
 
     sem_wait(mutexTail);
@@ -38,7 +36,7 @@ void Buffer::put(int val) {
 
 }
 
-int Buffer::get() {
+char _buffer::get() {
     sem_wait(itemAvailable);
 
     sem_wait(mutexHead);
@@ -52,7 +50,7 @@ int Buffer::get() {
     return ret;
 }
 
-int Buffer::getCnt() {
+int _buffer::getCnt() {
     int ret;
 
     sem_wait(mutexHead);

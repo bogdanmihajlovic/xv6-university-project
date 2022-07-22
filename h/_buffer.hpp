@@ -6,12 +6,12 @@
 #define OS1_BUFFER_CPP_H
 
 #include "../h/syscall_c.h"
-#include "printing.hpp"
 
-class Buffer {
+class _buffer {
 private:
+    friend class Riscv;
     int cap;
-    int *buffer;
+    char *buffer;
     int head, tail;
 
     sem_t spaceAvailable;
@@ -19,12 +19,15 @@ private:
     sem_t mutexHead;
     sem_t mutexTail;
 
-public:
-    Buffer(int _cap);
-    ~Buffer();
+    void kput(int val);
+    char kget();
 
-    void put(int val);
-    int get();
+public:
+    _buffer(int cap);
+    ~_buffer();
+
+    void put(char val);
+    char get();
 
     int getCnt();
 
