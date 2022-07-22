@@ -68,5 +68,6 @@ private:
     static int counter;
     static uint64 timeSliceCounter;
     friend class SleepList;
+    friend class _sem;
 };
 #endif //OS_PROJEKAT_TCB_HPP
