@@ -19,10 +19,12 @@ protected:
     void block();
     void unblock();
 private:
-    _sem(unsigned value) : value(value){}
-
-    unsigned value;
+    _sem(unsigned val) : value(val){}
+public:
+    int value;
     List<TCB> blocked;
+
+
 };
 
 #endif //OS_PROJEKAT__SEM_HPP

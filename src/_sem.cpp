@@ -12,6 +12,9 @@ int _sem::createSemaphore(sem_t *handle, unsigned int i) {
 void _sem::wait() {
     if(--value < 0)
         block();
+
+
+
     // TODO obrada greske za wait
 }
 
@@ -23,7 +26,7 @@ void _sem::signal() {
 void _sem::block() {
     TCB::running->setStatus(TCB::BLOCKED);
     blocked.addLast(TCB::running);
-    thread_dispatch();
+    TCB::dispatch();
 }
 
 void _sem::unblock() {
