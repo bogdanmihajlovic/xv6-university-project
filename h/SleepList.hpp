@@ -19,9 +19,6 @@ public:
     };
 
     static void put(TCB* thread, time_t);
-    static void printSleepList();
-
-
 
 private:
     static List<Sleep> sleepingThreads;

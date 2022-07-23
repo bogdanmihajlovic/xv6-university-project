@@ -8,10 +8,10 @@
 List<SleepList::Sleep> SleepList::sleepingThreads;
 
 void SleepList::put(TCB* thread, time_t sleepTime) {
+
     SleepList::Sleep* elem = new SleepList::Sleep(thread); // TODO destruktor
     sleepingThreads.resetCurrent();
     Sleep* p = sleepingThreads.getCurrent();
-    //Sleep* prev = nullptr;
     int position = 0;
     time_t listTime = 0;
     while(p){
@@ -19,7 +19,6 @@ void SleepList::put(TCB* thread, time_t sleepTime) {
         if(sleepTime < listTime)
             break;
         sleepingThreads.moveCurrent();
-        //prev = p;
         p = sleepingThreads.getCurrent();
         position++;
     }
@@ -30,7 +29,6 @@ void SleepList::put(TCB* thread, time_t sleepTime) {
         if(p)
            p->difference = p->difference - sleepTime;
         sleepingThreads.addFirst(elem);
-        return;
     }else if(!p){ // add as last
         elem->difference = sleepTime - listTime;
         sleepingThreads.addLast(elem);
@@ -42,25 +40,14 @@ void SleepList::put(TCB* thread, time_t sleepTime) {
 
 }
 
-void SleepList::printSleepList() {
-    sleepingThreads.resetCurrent();
-    Sleep* p = sleepingThreads.getCurrent();
-    while(p){
-        printInteger(p->difference);
-        printString("\n");
-        sleepingThreads.moveCurrent();
-        p = sleepingThreads.getCurrent();
-    }
-}
-
 int SleepList::decrement() {
     Sleep* p = sleepingThreads.peekFirst();
     if(!p)
         return 0;
     p->difference--;
+
     return 1;
 }
-
 
 void SleepList::releaseThreads(){
     if(!decrement())
@@ -72,5 +59,6 @@ void SleepList::releaseThreads(){
         sleepingThreads.removeFirst();
         Scheduler::put(t);
         p = sleepingThreads.peekFirst();
+        //TODO oslobodi struct
     }
 }

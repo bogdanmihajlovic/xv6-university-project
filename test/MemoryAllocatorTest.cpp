@@ -3,35 +3,6 @@
 //
 #include "../test/MemoryAllocatorTest.hpp"
 
-void printInteger(uint64 n){
-    printInt(n);
-    __putc('\n');
-}
-
-void printString(const char *string){
-    char c;
-    int i = 0;
-    while((c=string[i++])!='\0') __putc(c);
-}
-
-void readString(char word[]){
-    char c;
-    int i = 0;
-    while((c=__getc())!='\n') word[i++] = c;
-}
-
-
-void printInt(uint64 n){
-    if (n < 0) {
-        __putc('-');
-        n = -n;
-    }
-    if (n/10)
-        printInt(n/10);
-    __putc(n%10 + '0');
-}
-
-
 void mallocFree(){
     printString("mallocFree\n");
     constexpr int num = 100;
@@ -80,9 +51,6 @@ void bigMalloc(){
     if(p == 0) printString("ok\n");
     else printString("not ok\n");
 }
-
-
-
 
 
 void lotOfSmallMallocs(){

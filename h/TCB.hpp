@@ -31,6 +31,10 @@ public:
         delete[] stack;
         stack = 0;
     };
+
+    static void output(void*);
+    static void input(void*);
+    static void idle(void*);
 private:
 
     TCB(Body body, void* args, uint64* stack) :
@@ -62,6 +66,8 @@ private:
 
     static void threadWrapper();
 
+
+
     friend class Riscv;
     static void contextSwitch(Context* oldContext, Context* newContext);
     static void dispatch();
@@ -69,5 +75,6 @@ private:
     static uint64 timeSliceCounter;
     friend class SleepList;
     friend class _sem;
+
 };
 #endif //OS_PROJEKAT_TCB_HPP

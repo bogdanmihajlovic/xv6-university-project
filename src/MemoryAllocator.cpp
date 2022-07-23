@@ -4,6 +4,7 @@
 
 #include "../h/MemoryAllocator.hpp"
 
+
 MemoryAllocator::MemoryAllocator() {
     head = (FreeBlock*)HEAP_START_ADDR;
     head->size = (size_t)HEAP_END_ADDR - (size_t)HEAP_START_ADDR - sizeof(FreeBlock);

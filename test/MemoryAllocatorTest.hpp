@@ -7,16 +7,17 @@
 
 
 #include "../h/MemoryAllocator.hpp"
-#include "../h/syscall_c.hpp"
+#include "../h/syscall_c.h"
+#include "../h/print.hpp"
 
 class Test{
 public:
     int a;
 };
 
-void printString(const char *);
-void readString(char []);
-void printInt(uint64 );
+
+
+
 
 void mallocFree();
 void bigMalloc();

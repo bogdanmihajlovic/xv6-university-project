@@ -21,8 +21,11 @@ enum code {
     TIME_SLEEP = 0x31,
     ECALL_USER = 0x08,
     ECALL_SYS = 0x09,
+    CONSOLE = 0x0a,
+    GETC = 0x41,
+    PUTC = 0x42,
     TIMER = 0x8000000000000001UL, // supervisor software interrupt
-    CONSOLE = 0x8000000000000009UL
+    HARDWARE = 0x8000000000000009UL
 };
 
 void* mem_alloc(size_t );
@@ -44,4 +47,7 @@ int sem_signal (sem_t id);
 typedef unsigned long time_t;
 int time_sleep (time_t);
 
+const int EOF = -1;
+char getc ();
+void putc(char);
 #endif //OS_PROJEKAT_SYSCALL_C_H

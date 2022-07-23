@@ -6,7 +6,7 @@
 #define OS1_VEZBE07_RISCV_CONTEXT_SWITCH_1_SYNCHRONOUS_RISCV_HPP
 
 #include "../lib/hw.h"
-
+#include "../h/_buffer.hpp"
 class Riscv
 {
 public:
@@ -85,8 +85,13 @@ public:
     // supervisor trap
     static void supervisorTrap();
 
+    static _buffer* inputBuffer;
+    static _buffer* outputBuffer;
+
+    static void init();
 private:
     static void supervisorTrapHandler();
+    friend class TCB;
 };
 
 inline uint64 Riscv::r_scause()

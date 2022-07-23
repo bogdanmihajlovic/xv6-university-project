@@ -6,6 +6,7 @@
 #define OS1_BUFFER_CPP_H
 
 #include "../h/syscall_c.h"
+#include "../h/_sem.hpp"
 
 class _buffer {
 private:
@@ -19,9 +20,10 @@ private:
     sem_t mutexHead;
     sem_t mutexTail;
 
-    void kput(int val);
+    void kput(char val);
     char kget();
 
+        friend class TCB;
 public:
     _buffer(int cap);
     ~_buffer();

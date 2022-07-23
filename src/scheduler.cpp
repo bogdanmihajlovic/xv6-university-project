@@ -11,7 +11,7 @@ TCB *Scheduler::get()
     return readyCoroutineQueue.removeFirst();
 }
 
-void Scheduler::put(TCB *ccb)
-{
+void Scheduler::put(TCB *ccb){
+
     readyCoroutineQueue.addLast(ccb);
 }

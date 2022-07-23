@@ -5,9 +5,36 @@
 #include "../h/TCB.hpp"
 #include "../h/riscv.hpp"
 #include "../h/scheduler.hpp"
+#include "../lib/mem.h"
 // TODO brisanje steka
 
+void TCB::input(void* arg){
+    while(1) {
+        Riscv::mc_sstatus(Riscv::SSTATUS_SIE);
+        volatile char status = *((char *)CONSOLE_STATUS);
+        char c;
+        while (status & CONSOLE_RX_STATUS_BIT) {
+            c = (*(char *) CONSOLE_RX_DATA);
+            Riscv::inputBuffer->put(c);
+            status = *((char *) CONSOLE_STATUS);
+        }
+        dispatch();
+    }
+}
 
+void TCB::output(void* arg) {
+
+    while(1) {
+        Riscv::mc_sstatus(Riscv::SSTATUS_SIE);
+        uint64 volatile status = *((char *) CONSOLE_STATUS);
+        while (status & CONSOLE_TX_STATUS_BIT) {
+            char c = Riscv::outputBuffer->get();
+            (*(char *) CONSOLE_TX_DATA) = c;
+            status = *((char *) CONSOLE_STATUS);
+        }
+        dispatch();
+    }
+}
 void TCB::yield() {
     __asm__ volatile("mv a0, %[var]" : : [var] "r"(THREAD_YIELD));
     __asm__ volatile("ecall");
@@ -33,7 +60,12 @@ int TCB::stopThread() {
     TCB::dispatch();
     return 0;
 }
-
+void TCB::idle(void* arg){
+    Riscv::popSppSpie();
+    while(true){
+        TCB::dispatch();
+    }
+}
 void TCB::threadWrapper(){
     Riscv::popSppSpie();
     running->body(running->args);
@@ -43,4 +75,5 @@ void TCB::threadWrapper(){
 
 uint64 TCB::timeSliceCounter = 0;
 TCB* TCB::running = nullptr;
+
 int TCB::counter = 0;

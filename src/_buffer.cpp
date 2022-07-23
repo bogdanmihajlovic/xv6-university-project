@@ -12,7 +12,6 @@ _buffer::_buffer(int _cap) : cap(_cap + 1), head(0), tail(0) {
 _buffer::~_buffer() {
 
     while (getCnt() > 0) {
-        char ch = buffer[head];
         head = (head + 1) % cap;
     }
 
@@ -41,7 +40,7 @@ char _buffer::get() {
 
     sem_wait(mutexHead);
 
-    int ret = buffer[head];
+    char ret = buffer[head];
     head = (head + 1) % cap;
     sem_signal(mutexHead);
 
@@ -66,4 +65,32 @@ int _buffer::getCnt() {
     sem_signal(mutexHead);
 
     return ret;
+}
+
+
+char _buffer::kget() {
+
+    itemAvailable->wait();
+    mutexHead->wait();
+
+    char ret = buffer[head];
+    head = (head + 1) % cap;
+
+    mutexHead->signal();
+    spaceAvailable->signal();
+    return ret;
+}
+
+void _buffer::kput(char val) {
+    spaceAvailable->wait();
+
+    mutexTail->wait();
+
+    buffer[tail] = val;
+    tail = (tail + 1) % cap;
+
+    mutexTail->signal();
+    itemAvailable->signal();
+
+
 }

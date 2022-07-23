@@ -8,13 +8,25 @@
 #include "../h/TCB.hpp"
 #include "../h/_sem.hpp"
 #include "../h/SleepList.hpp"
+
+
 using Body = void(*)(void*);
+
+_buffer* Riscv::inputBuffer = nullptr;
+_buffer* Riscv::outputBuffer = nullptr;
+
+
 
 void Riscv::popSppSpie() {
     __asm__ volatile ("csrw sepc, ra");
     __asm__ volatile ("sret");
 }
 
+void Riscv::init()
+{
+    inputBuffer = new _buffer(100);
+    outputBuffer = new _buffer(100);
+}
 
 void Riscv::supervisorTrapHandler(){
 
@@ -67,6 +79,10 @@ void Riscv::supervisorTrapHandler(){
             SleepList::put(TCB::running, time);
             TCB::running->setStatus(TCB::SLEEPING);
             TCB::dispatch();
+        }else if(operation == GETC){
+            ret = (uint64)inputBuffer->kget();
+        }else if(operation == PUTC){
+            outputBuffer->kput((char)a1);
         }
         w_sstatus(sstatus);
         w_sepc(sepc + 4);
@@ -81,9 +97,12 @@ void Riscv::supervisorTrapHandler(){
             w_sepc(sepc);
         }
         mc_sip(SIP_SSIP);
-    }else if(scause == CONSOLE){
-        console_handler();
-    }else{
+    }else if(scause == HARDWARE){
+       int code = plic_claim();
+        if (code == CONSOLE_IRQ)
+            plic_complete(code);
+            //console_handler();
+    } else{
         // print(scause)
         // print(sepc)
         // print(stval)

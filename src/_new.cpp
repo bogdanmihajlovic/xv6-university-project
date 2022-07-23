@@ -1,5 +1,5 @@
 #include "../lib/mem.h"
-
+#include "../h/syscall_c.h"
 
 // TODO zameni sa svojim funckcijama
 
