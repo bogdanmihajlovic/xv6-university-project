@@ -1,9 +1,7 @@
-//
-// Created by marko on 20.4.22..
-//
 
-#ifndef OS1_VEZBE07_RISCV_CONTEXT_SWITCH_1_SYNCHRONOUS_RISCV_HPP
-#define OS1_VEZBE07_RISCV_CONTEXT_SWITCH_1_SYNCHRONOUS_RISCV_HPP
+
+#ifndef OS_PROJEKAT_RISCV_HPP
+#define OS_PROJEKAT_RISCV_HPP
 
 #include "../lib/hw.h"
 #include "../h/_buffer.hpp"
@@ -172,6 +170,7 @@ inline void Riscv::ms_sstatus(uint64 mask)
 inline void Riscv::mc_sstatus(uint64 mask)
 {
     __asm__ volatile ("csrc sstatus, %[mask]" : : [mask] "r"(mask));
+
 }
 
 inline uint64 Riscv::r_sstatus()

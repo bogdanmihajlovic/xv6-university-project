@@ -22,10 +22,9 @@ void Riscv::popSppSpie() {
     __asm__ volatile ("sret");
 }
 
-void Riscv::init()
-{
-    inputBuffer = new _buffer(100);
-    outputBuffer = new _buffer(100);
+void Riscv::init(){
+    inputBuffer = new _buffer(1024);
+    outputBuffer = new _buffer(1024);
 }
 
 void Riscv::supervisorTrapHandler(){
@@ -59,6 +58,7 @@ void Riscv::supervisorTrapHandler(){
         }else if(operation == THREAD_EXIT){
             ret = TCB::stopThread();
         }else if(operation == THREAD_DISPATCH){
+            //TCB::dispatch(); // TODO ovde
             TCB::yield();
         }else if(operation == SEM_OPEN){
             ret = _sem::createSemaphore((sem_t*)a1, (unsigned)a2);

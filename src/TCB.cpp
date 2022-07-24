@@ -11,14 +11,15 @@
 void TCB::input(void* arg){
     while(1) {
         Riscv::mc_sstatus(Riscv::SSTATUS_SIE);
-        volatile char status = *((char *)CONSOLE_STATUS);
+
+        char status = *((char *)CONSOLE_STATUS);
         char c;
         while (status & CONSOLE_RX_STATUS_BIT) {
-            c = (*(char *) CONSOLE_RX_DATA);
+            c = (*(char*) CONSOLE_RX_DATA);
             Riscv::inputBuffer->put(c);
-            status = *((char *) CONSOLE_STATUS);
+            status = *((char*)CONSOLE_STATUS);
         }
-        dispatch();
+        thread_dispatch();
     }
 }
 
@@ -26,13 +27,14 @@ void TCB::output(void* arg) {
 
     while(1) {
         Riscv::mc_sstatus(Riscv::SSTATUS_SIE);
-        uint64 volatile status = *((char *) CONSOLE_STATUS);
+        char status = *((char *) CONSOLE_STATUS);
+        char c;
         while (status & CONSOLE_TX_STATUS_BIT) {
-            char c = Riscv::outputBuffer->get();
-            (*(char *) CONSOLE_TX_DATA) = c;
-            status = *((char *) CONSOLE_STATUS);
+            c = Riscv::outputBuffer->get();
+            (*(char*) CONSOLE_TX_DATA) = c;
+            status = *((char*)CONSOLE_STATUS);
         }
-        dispatch();
+        thread_dispatch();
     }
 }
 void TCB::yield() {
@@ -42,9 +44,8 @@ void TCB::yield() {
 
 void TCB::dispatch(){
     TCB* old = running;
-    if(old->getStatus() == RUNNING){
+    if(old->getStatus() == RUNNING)
         Scheduler::put(old);
-    }
     running = Scheduler::get();
     TCB::contextSwitch(&old->context, &running->context);
 }
@@ -61,10 +62,10 @@ int TCB::stopThread() {
     return 0;
 }
 void TCB::idle(void* arg){
-    Riscv::popSppSpie();
-    while(true){
-        TCB::dispatch();
-    }
+    //Riscv::popSppSpie();
+     while(true){
+         thread_dispatch();
+     }
 }
 void TCB::threadWrapper(){
     Riscv::popSppSpie();
@@ -75,5 +76,4 @@ void TCB::threadWrapper(){
 
 uint64 TCB::timeSliceCounter = 0;
 TCB* TCB::running = nullptr;
-
 int TCB::counter = 0;

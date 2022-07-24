@@ -9,7 +9,7 @@
 #include "../lib/hw.h"
 #include "../h/scheduler.hpp"
 #include "../h/syscall_c.h"
-#include "../h/print.hpp"
+#include "../test/printing.hpp"
 
 class TCB {
 public:

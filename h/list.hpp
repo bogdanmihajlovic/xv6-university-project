@@ -1,9 +1,6 @@
-//
-// Created by marko on 20.4.22..
-//
 
-#ifndef OS1_VEZBE07_RISCV_CONTEXT_SWITCH_1_SYNCHRONOUS_LIST_HPP
-#define OS1_VEZBE07_RISCV_CONTEXT_SWITCH_1_SYNCHRONOUS_LIST_HPP
+#ifndef OS_PROJEKAT_LIST_HPP
+#define OS_PROJEKAT_LIST_HPP
 
 template<typename T>
 class List

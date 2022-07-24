@@ -2,8 +2,8 @@
 // Created by zika on 2/26/22.
 //
 
-#ifndef OS1_BUFFER_CPP_H
-#define OS1_BUFFER_CPP_H
+#ifndef OS_PROJEKAT__BUFFER_CPP_H
+#define OS_PROJEKAT__BUFFER_CPP_H
 
 #include "../h/syscall_c.h"
 #include "../h/_sem.hpp"
@@ -12,7 +12,7 @@ class _buffer {
 private:
     friend class Riscv;
     int cap;
-    char *buffer;
+    char* buffer;
     int head, tail;
 
     sem_t spaceAvailable;
@@ -26,6 +26,7 @@ private:
         friend class TCB;
 public:
     _buffer(int cap);
+    _buffer();
     ~_buffer();
 
     void put(char val);

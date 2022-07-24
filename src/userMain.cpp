@@ -1,11 +1,11 @@
 
 
-#include "../h/print.hpp"
+#include "../test/printing.hpp"
 #include "../h/MemoryAllocator.hpp"
 #include "../h/syscall_c.h"
 
 class Riscv;
-
+extern void  producerConsumer_C_API();
 
 #define MAX 400
 int number = 2;
@@ -49,7 +49,6 @@ void uzivaUCigareti(int pusac) {
     time_sleep(20);
 
 }
-
 
 
 void dilerJova(void* param) {
@@ -119,7 +118,9 @@ void pusacLaza(void* param) { // uvek ima papir
 
 }
 
+extern void Threads_C_API_test();
 
+extern void testSleeping();
 void userMain(void* ){
 
 
@@ -140,4 +141,8 @@ void userMain(void* ){
 
     thread_create(&laza, pusacLaza, nullptr);*/
 
+    //producerConsumer_C_API();
+
+   // testSleeping();
+   Threads_C_API_test();
 }

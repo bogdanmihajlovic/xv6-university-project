@@ -12,9 +12,6 @@ int _sem::createSemaphore(sem_t *handle, unsigned int i) {
 void _sem::wait() {
     if(--value < 0)
         block();
-
-
-
     // TODO obrada greske za wait
 }
 
