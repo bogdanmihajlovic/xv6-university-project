@@ -1,15 +1,16 @@
-/*
+
 //
 // Created by bogdan on 19.7.22..
 //
 
 #ifndef OS_PROJEKAT_SYSCALL_CPP_HPP
 #define OS_PROJEKAT_SYSCALL_CPP_HPP
-#include "../h/syscall_c.hpp"
 
-*/
-/*void* ::operator new (size_t t);
-void ::operator delete (void*);*//*
+#include "../h/syscall_c.h"
+
+
+void* ::operator new (size_t t);
+void ::operator delete (void*);
 
 
 class Thread {
@@ -52,4 +53,4 @@ public:
 };
 
 #endif //OS_PROJEKAT_SYSCALL_CPP_HPP
-*/
+
