@@ -19,7 +19,7 @@ void TCB::input(void* arg){
             Riscv::inputBuffer->put(c);
             status = *((char*)CONSOLE_STATUS);
         }
-        thread_dispatch();
+        dispatch();
     }
 }
 
@@ -34,7 +34,7 @@ void TCB::output(void* arg) {
             (*(char*) CONSOLE_TX_DATA) = c;
             status = *((char*)CONSOLE_STATUS);
         }
-        thread_dispatch();
+        dispatch();
     }
 }
 void TCB::yield() {
@@ -44,8 +44,9 @@ void TCB::yield() {
 
 void TCB::dispatch(){
     TCB* old = running;
-    if(old->getStatus() == RUNNING)
+    if(old->getStatus() == RUNNING) {
         Scheduler::put(old);
+    }
     running = Scheduler::get();
     TCB::contextSwitch(&old->context, &running->context);
 }
@@ -62,9 +63,8 @@ int TCB::stopThread() {
     return 0;
 }
 void TCB::idle(void* arg){
-    //Riscv::popSppSpie();
      while(true){
-         thread_dispatch();
+        thread_dispatch();
      }
 }
 void TCB::threadWrapper(){

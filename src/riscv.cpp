@@ -58,8 +58,7 @@ void Riscv::supervisorTrapHandler(){
         }else if(operation == THREAD_EXIT){
             ret = TCB::stopThread();
         }else if(operation == THREAD_DISPATCH){
-            //TCB::dispatch(); // TODO ovde
-            TCB::yield();
+            TCB::dispatch();
         }else if(operation == SEM_OPEN){
             ret = _sem::createSemaphore((sem_t*)a1, (unsigned)a2);
         }else if(operation == SEM_CLOSE){
