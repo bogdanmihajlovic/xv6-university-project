@@ -5,14 +5,14 @@
 #ifndef OS_PROJEKAT__BUFFER_CPP_H
 #define OS_PROJEKAT__BUFFER_CPP_H
 
-#include "../h/syscall_c.h"
+
 #include "../h/_sem.hpp"
 
 class _buffer {
 private:
     friend class Riscv;
     int cap;
-    char* buffer;
+    char buffer[DEFAULT_BUFFER_SIZE];
     int head, tail;
 
     sem_t spaceAvailable;
@@ -25,7 +25,7 @@ private:
 
         friend class TCB;
 public:
-    _buffer(int cap);
+
     _buffer();
     ~_buffer();
 
@@ -33,6 +33,11 @@ public:
     char get();
 
     int getCnt();
+
+    void *operator new(size_t );
+    void *operator new[](size_t);
+    void operator delete(void*);
+    void operator delete[](void*);
 
 };
 

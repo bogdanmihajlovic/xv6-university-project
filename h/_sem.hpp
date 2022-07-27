@@ -10,19 +10,28 @@
 
 class _sem{
 public:
-    static int createSemaphore(sem_t* handle, unsigned value);
+    static int createSemaphore(sem_t* handle, int value);
 
     void wait();
     void signal();
     int close();
+
 protected:
     void block();
     void unblock();
+
 private:
-    _sem(unsigned val) : value(val){}
+    _sem(int val) : value(val){}
+
 public:
     int value;
     List<TCB> blocked;
+
+
+    void *operator new(size_t );
+    void *operator new[](size_t);
+    void operator delete(void*);
+    void operator delete[](void*);
 
 
 };

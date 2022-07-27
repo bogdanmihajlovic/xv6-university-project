@@ -9,6 +9,7 @@ class Riscv
 {
 public:
 
+
     // pop sstatus.spp and sstatus.spie bits (has to be a non inline function)
     static void popSppSpie();
 
@@ -87,7 +88,13 @@ public:
     static _buffer* outputBuffer;
 
     static void init();
+    void *operator new(size_t );
+    void *operator new[](size_t);
+    void operator delete(void*);
+    void operator delete[](void*);
 private:
+
+
     static void supervisorTrapHandler();
     friend class TCB;
 };

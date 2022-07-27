@@ -2,6 +2,8 @@
 #ifndef OS_PROJEKAT_LIST_HPP
 #define OS_PROJEKAT_LIST_HPP
 
+#include "MemoryAllocator.hpp"
+
 template<typename T>
 class List
 {
@@ -11,11 +13,29 @@ private:
         Elem *next;
 
         Elem(T *data, Elem *next) : data(data), next(next) {}
+        void* operator new(size_t size) {
+            return MemoryAllocator::getMemory(size);
+        }
+        void* operator new[](size_t size) {
+            return MemoryAllocator::getMemory(size);
+        }
+
+        void operator delete(void *addr) {
+            MemoryAllocator::freeMemory(addr);
+        }
+
+        void operator delete[](void *addr) {
+            MemoryAllocator::freeMemory(addr);
+        }
     };
 
     Elem *head, *tail, *current;
 
+
 public:
+
+
+
     List() : head(0), tail(0), current(0) {}
 
     List(const List<T> &) = delete;

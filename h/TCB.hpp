@@ -13,7 +13,10 @@
 
 class TCB {
 public:
-    enum threadStatus {FINISHED, RUNNING, BLOCKED, SLEEPING};
+
+
+
+    enum threadStatus {FINISHED, RUNNING, BLOCKED, SLEEPING, READY};
     int pid;
     using Body = void (*)(void*);
 
@@ -21,21 +24,29 @@ public:
     threadStatus getStatus() const { return status; }
 
     static int createThread(thread_t* handle, Body body, void* args, uint64* st);
+    static int createThread(thread_t* handle, Body body, void* args, uint64* st, threadStatus status);
     static int stopThread();
     static void yield();
-
+    static void mainWrapper(void*);
 
     static TCB* running;
 
     ~TCB(){
-        delete[] stack;
+        //delete[] stack;
         stack = 0;
     };
 
     static void output(void*);
     static void input(void*);
     static void idle(void*);
+    static int start(thread_t);
+
+    void *operator new(size_t);
+    void *operator new[](size_t);
+    void operator delete(void*);
+    void operator delete[](void*);
 private:
+
 
     TCB(Body body, void* args, uint64* stack) :
         body(body),
@@ -49,7 +60,19 @@ private:
           if (body != nullptr) {
               Scheduler::put(this);
           }
+    }
 
+    TCB(Body body, void* args, uint64* stack, threadStatus status) :
+    body(body),
+    args(args),
+    stack(stack),
+    context({(uint64)&threadWrapper, stack != nullptr ? (uint64)&stack[DEFAULT_STACK_SIZE] : 0}),
+    timeSlice(DEFAULT_TIME_SLICE),
+    status(status){
+        pid = ++counter;
+        if (body != nullptr && this->status == RUNNING) {
+            Scheduler::put(this);
+        }
     }
 
     struct Context{
