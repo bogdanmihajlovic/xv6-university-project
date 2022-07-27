@@ -3,8 +3,9 @@
 //
 
 #include "../h/_sem.hpp"
+#include "../h/MemoryAllocator.hpp"
 
-int _sem::createSemaphore(sem_t *handle, unsigned int i) {
+int _sem::createSemaphore(sem_t *handle, int i) {
     *handle = new _sem(i);
     return 0;
 }
@@ -41,3 +42,26 @@ int _sem::close(){
     }
     return 0;
 }
+
+
+void *_sem::operator new(size_t size) {
+    return MemoryAllocator::getMemory(size);
+}
+
+void *_sem::operator new[](size_t size) {
+    return MemoryAllocator::getMemory(size);
+}
+
+void _sem::operator delete(void *addr) {
+    MemoryAllocator::freeMemory(addr);
+}
+
+void _sem::operator delete[](void *addr) {
+    MemoryAllocator::freeMemory(addr);
+}
+
+
+
+
+
+

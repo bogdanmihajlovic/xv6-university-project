@@ -1,7 +1,3 @@
-//
-// Created by bogdan on 10.7.22..
-//
-
 #include "../h/MemoryAllocator.hpp"
 
 

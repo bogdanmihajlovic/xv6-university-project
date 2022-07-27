@@ -3,10 +3,7 @@
 //
 
 #include "../h/riscv.hpp"
-#include "../h/syscall_c.h"
 #include "../h/MemoryAllocator.hpp"
-#include "../h/TCB.hpp"
-#include "../h/_sem.hpp"
 #include "../h/SleepList.hpp"
 
 
@@ -23,8 +20,8 @@ void Riscv::popSppSpie() {
 }
 
 void Riscv::init(){
-    inputBuffer = new _buffer(1024);
-    outputBuffer = new _buffer(1024);
+    inputBuffer = new _buffer();
+    outputBuffer = new _buffer();
 }
 
 void Riscv::supervisorTrapHandler(){
@@ -60,7 +57,7 @@ void Riscv::supervisorTrapHandler(){
         }else if(operation == THREAD_DISPATCH){
             TCB::dispatch();
         }else if(operation == SEM_OPEN){
-            ret = _sem::createSemaphore((sem_t*)a1, (unsigned)a2);
+            ret = _sem::createSemaphore((sem_t*)a1, (int)a2);
         }else if(operation == SEM_CLOSE){
             sem_t id = (sem_t)a1;
             id->close();
@@ -76,7 +73,7 @@ void Riscv::supervisorTrapHandler(){
         }else if(operation == TIME_SLEEP){
             time_t time = (time_t)a1;
             SleepList::put(TCB::running, time);
-            TCB::running->setStatus(TCB::SLEEPING);
+            //TCB::running->setStatus(TCB::SLEEPING);
             TCB::dispatch();
         }else if(operation == GETC){
             ret = (uint64)inputBuffer->kget();
@@ -117,4 +114,21 @@ void Riscv::supervisorTrapHandler(){
     __asm__ volatile("mv a0, %0" : : "r"(a0));
 
 
+}
+
+
+void *Riscv::operator new(size_t size) {
+    return MemoryAllocator::getMemory(size);
+}
+
+void *Riscv::operator new[](size_t size) {
+    return MemoryAllocator::getMemory(size);
+}
+
+void Riscv::operator delete(void *addr) {
+    MemoryAllocator::freeMemory(addr);
+}
+
+void Riscv::operator delete[](void *addr) {
+    MemoryAllocator::freeMemory(addr);
 }

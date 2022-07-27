@@ -8,7 +8,9 @@
 List<SleepList::Sleep> SleepList::sleepingThreads;
 
 void SleepList::put(TCB* thread, time_t sleepTime) {
-
+    if(sleepTime <= 0){
+        return;
+    }
     SleepList::Sleep* elem = new SleepList::Sleep(thread); // TODO destruktor
     sleepingThreads.resetCurrent();
     Sleep* p = sleepingThreads.getCurrent();
@@ -37,7 +39,7 @@ void SleepList::put(TCB* thread, time_t sleepTime) {
         p->difference = listTime - sleepTime;
         sleepingThreads.insertAtPosition(elem, position);
     }
-
+    TCB::running->setStatus(TCB::SLEEPING);
 }
 
 int SleepList::decrement() {
@@ -61,4 +63,20 @@ void SleepList::releaseThreads(){
         p = sleepingThreads.peekFirst();
         //TODO oslobodi struct
     }
+}
+
+void *SleepList::operator new(size_t size) {
+    return MemoryAllocator::getMemory(size);
+}
+
+void *SleepList::operator new[](size_t size) {
+    return MemoryAllocator::getMemory(size);
+}
+
+void SleepList::operator delete(void *addr) {
+    MemoryAllocator::freeMemory(addr);
+}
+
+void SleepList::operator delete[](void *addr) {
+    MemoryAllocator::freeMemory(addr);
 }

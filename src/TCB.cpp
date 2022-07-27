@@ -6,12 +6,14 @@
 #include "../h/riscv.hpp"
 #include "../h/scheduler.hpp"
 #include "../lib/mem.h"
+#include "../h/MemoryAllocator.hpp"
+
+extern void userMain();
 // TODO brisanje steka
 
 void TCB::input(void* arg){
     while(1) {
         Riscv::mc_sstatus(Riscv::SSTATUS_SIE);
-
         char status = *((char *)CONSOLE_STATUS);
         char c;
         while (status & CONSOLE_RX_STATUS_BIT) {
@@ -57,6 +59,12 @@ int TCB::createThread(thread_t* handle, Body body, void* args, uint64* stack) {
     return 0; // TODO obrada greske
 }
 
+int TCB::createThread(thread_t* handle, Body body, void* args, uint64* stack, threadStatus status) {
+    TCB* thread  = new TCB(body, args, stack, status);
+    *handle = thread;
+    return 0; // TODO obrada greske
+}
+
 int TCB::stopThread() {
     running->setStatus(FINISHED);
     TCB::dispatch();
@@ -74,6 +82,36 @@ void TCB::threadWrapper(){
     TCB::yield();
 }
 
+int TCB::start(thread_t pid){
+    pid->setStatus(RUNNING);
+    Scheduler::put(pid);
+    return 1;
+}
+
+void TCB::mainWrapper(void* sem) {
+    userMain();
+    sem_signal((sem_t)sem);
+}
 uint64 TCB::timeSliceCounter = 0;
 TCB* TCB::running = nullptr;
 int TCB::counter = 0;
+
+
+
+void* TCB::operator new(size_t size) {
+    return MemoryAllocator::getMemory(size);
+}
+
+void* TCB::operator new[](size_t size) {
+    return MemoryAllocator::getMemory(size);
+}
+
+void TCB::operator delete(void* addr) {
+    MemoryAllocator::freeMemory(addr);
+}
+
+void TCB::operator delete[](void* addr) {
+    MemoryAllocator::freeMemory(addr);
+}
+
+

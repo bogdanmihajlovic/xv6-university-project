@@ -1,21 +1,15 @@
 #include "../h/_buffer.hpp"
+#include "../h/MemoryAllocator.hpp"
 
 
-_buffer::_buffer(int _cap) : cap(_cap), head(0), tail(0) {
-    buffer = (char*)mem_alloc(sizeof(char) * cap);
-    sem_open(&itemAvailable, 0);
-    sem_open(&spaceAvailable, _cap);
-    sem_open(&mutexHead, 1);
-    sem_open(&mutexTail, 1);
+_buffer::_buffer() : head(0), tail(0) {
+    _sem::createSemaphore(&itemAvailable, 0);
+    _sem::createSemaphore(&spaceAvailable, DEFAULT_BUFFER_SIZE + 1);
+    _sem::createSemaphore(&mutexHead, 1);
+    _sem::createSemaphore(&mutexTail, 1);
 }
 
-_buffer::_buffer() {
 
-    sem_open(&itemAvailable, 0);
-    sem_open(&spaceAvailable, DEFAULT_BUFFER_SIZE);
-    sem_open(&mutexHead, 1);
-    sem_open(&mutexTail, 1);
-}
 _buffer::~_buffer() {
     while (getCnt() > 0)
         head = (head + 1) % cap;
@@ -95,4 +89,21 @@ void _buffer::kput(char val) {
 
     mutexTail->signal();
     itemAvailable->signal();
+}
+
+
+void *_buffer::operator new(size_t size) {
+    return MemoryAllocator::getMemory(size);
+}
+
+void *_buffer::operator new[](size_t size) {
+    return MemoryAllocator::getMemory(size);
+}
+
+void _buffer::operator delete(void *addr) {
+    MemoryAllocator::freeMemory(addr);
+}
+
+void _buffer::operator delete[](void *addr) {
+    MemoryAllocator::freeMemory(addr);
 }

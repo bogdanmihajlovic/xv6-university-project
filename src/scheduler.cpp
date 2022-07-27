@@ -6,8 +6,7 @@
 
 List<TCB> Scheduler::readyCoroutineQueue;
 
-TCB *Scheduler::get()
-{
+TCB *Scheduler::get(){
     return readyCoroutineQueue.removeFirst();
 }
 
