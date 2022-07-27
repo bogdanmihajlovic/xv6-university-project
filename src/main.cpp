@@ -6,45 +6,44 @@
 #include "../h/riscv.hpp"
 #include "../h/syscall_c.h"
 #include "../lib/console.h"
-#include "../test/ConsumerProducer_C_API_test.h"
-#include "../test/ThreadSleep_C_API_test.hpp"
-#include "../test/Threads_C_API_test.hpp"
+#include "../h/MemoryAllocator.hpp"
 
-
+extern void stressTesting();
 extern void userMain(void*);
-
+sem_t mainSem;
 
 int main(){
+    Riscv::w_stvec((uint64)&Riscv::supervisorTrap);
+
+
 
     Riscv::w_stvec((uint64)&Riscv::supervisorTrap);
 
     Riscv::init();
+
 
     thread_t empty;
     thread_create(&empty, nullptr, nullptr);
     TCB::running = empty;
 
     thread_t out;
-    thread_create(&out, TCB::output,nullptr);
+    thread_create(&out, TCB::output, nullptr);
     thread_t in;
     thread_create(&in, TCB::input, nullptr);
 
+
+    stressTesting();
+    sem_open(&mainSem, 0);
+
     thread_t main;
-    thread_create(&main, userMain, nullptr);
+    thread_create(&main, TCB::mainWrapper, mainSem);
 
     thread_t idleThread;
     thread_create(&idleThread, TCB::idle, nullptr);
 
-
-
     Riscv::ms_sstatus(Riscv::SSTATUS_SIE);
 
-    while(main->getStatus() != TCB::FINISHED)
-        TCB::yield();
+    sem_wait(mainSem);
 
-
-    //Threads_C_API_test();
-    //testSleeping();
-    //producerConsumer_C_API();
     return 0;
 }
