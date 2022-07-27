@@ -1,3 +1,7 @@
+
+#ifndef OS_PROJEKAT_PUSACITEST_HPP
+#define OS_PROJEKAT_PUSACITEST_HPP
+
 #include "../h/syscall_c.h"
 #include "../test/printing.hpp"
 #include "../lib/console.h"
@@ -36,8 +40,7 @@ void uzivaUCigareti(int pusac) {
 
     sem_wait(mutexIspisi);
     char pusaci[] = {'P', 'M', 'L'};
-    __putc(pusaci[pusac]); printString(" uziva u cigareti.\n");
-
+    putc(pusaci[pusac]); printString(" uziva u cigareti.\n");
     sem_signal(mutexIspisi);
 
     time_sleep(20);
@@ -52,30 +55,22 @@ void dilerJova(void* param) {
         int r = rand() % 3;
 
         sem_wait(mutexIspisi);
-
         printString("Na stolu su ");
-
         switch(r) { // odabir sta diler trenutno ima
-
             case 0: printString("duvan i papir.\n");
                 sem_signal(DuvanIPapir);
                 break;
-
             case 1: printString("papir i sibice.\n");
                 sem_signal(PapirISibice);
                 break;
-
             case 2: printString("sibice i duvan.\n");
                 sem_signal(SibiceIDuvan);
                 break;
-
         }
 
         sem_signal(mutexIspisi);
         sem_wait(izgorelaCigareta);
-
     }
-
 }
 
 void pusacPera(void* param) { // uvek ima sibice
@@ -96,8 +91,9 @@ void pusacMika(void* param) { // uvek ima duvan
 }
 
 void pusacLaza(void* param) { // uvek ima papir
+
     while(1){
-        sem_signal(SibiceIDuvan);
+        sem_wait(SibiceIDuvan);
         uzivaUCigareti(2);
         sem_signal(izgorelaCigareta);
     }
@@ -105,20 +101,24 @@ void pusacLaza(void* param) { // uvek ima papir
 
 
 void testSinhro(){
-    /* thread_t jova, pera, mika, laza;
- sem_open(&mutexIspisi, 1);
- sem_open(&DuvanIPapir, 0);
- sem_open(&PapirISibice, 0) ;
- sem_open(&SibiceIDuvan, 0);
- sem_open(&izgorelaCigareta, 0);
+    thread_t jova, pera, mika, laza;
+
+     sem_open(&mutexIspisi, 1);
+     sem_open(&DuvanIPapir, 0);
+     sem_open(&PapirISibice, 0) ;
+     sem_open(&SibiceIDuvan, 0);
+     sem_open(&izgorelaCigareta, 0);
 
 
 
- thread_create(&jova, dilerJova, nullptr);
+     thread_create(&jova, dilerJova, nullptr);
+     thread_create(&pera, pusacPera, nullptr);
+     thread_create(&mika, pusacMika, nullptr);
+     thread_create(&laza, pusacLaza, nullptr);
 
- thread_create(&pera, pusacPera, nullptr);
 
- thread_create(&mika, pusacMika, nullptr);
+     time_sleep(10);
 
- thread_create(&laza, pusacLaza, nullptr);*/
 }
+
+#endif

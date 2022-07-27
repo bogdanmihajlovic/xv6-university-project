@@ -21,6 +21,7 @@ void sleepyRun(void *arg) {
         printString(" !\n");
         time_sleep(sleep_time);
     }
+
     finished[sleep_time/10-1] = true;
 }
 
@@ -34,6 +35,7 @@ void testSleeping() {
     }
 
     while (!(finished[0] && finished[1])) {}
+
 }
 
 #endif //XV6_THREADSLEEP_C_API_TEST_HPP
