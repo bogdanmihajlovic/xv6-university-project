@@ -2,7 +2,9 @@
 #include "../h/MemoryAllocator.hpp"
 
 
-_buffer::_buffer() : head(0), tail(0) {
+_buffer::_buffer() : cap(DEFAULT_BUFFER_SIZE + 1), head(0), tail(0) {
+
+    buffer = (char*)MemoryAllocator::getMemory(sizeof(char)*DEFAULT_BUFFER_SIZE);
     _sem::createSemaphore(&itemAvailable, 0);
     _sem::createSemaphore(&spaceAvailable, DEFAULT_BUFFER_SIZE + 1);
     _sem::createSemaphore(&mutexHead, 1);
@@ -13,13 +15,17 @@ _buffer::_buffer() : head(0), tail(0) {
 _buffer::~_buffer() {
     while (getCnt() > 0)
         head = (head + 1) % cap;
-
-
-    //mem_free(buffer);
     sem_close(itemAvailable);
     sem_close(spaceAvailable);
     sem_close(mutexTail);
     sem_close(mutexHead);
+    MemoryAllocator::freeMemory(buffer);
+    buffer = nullptr;
+    delete spaceAvailable;
+    delete itemAvailable;
+    delete mutexHead;
+    delete mutexTail;
+    printString("obrisao sam buffer\n");
 }
 
 void _buffer::put(char val) {
@@ -31,7 +37,6 @@ void _buffer::put(char val) {
 
     sem_signal(mutexTail);
     sem_signal(itemAvailable);
-
 }
 
 char _buffer::get() {

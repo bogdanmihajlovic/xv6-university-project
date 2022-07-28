@@ -12,7 +12,7 @@ class _buffer {
 private:
     friend class Riscv;
     int cap;
-    char buffer[DEFAULT_BUFFER_SIZE];
+    char* buffer;
     int head, tail;
 
     sem_t spaceAvailable;
