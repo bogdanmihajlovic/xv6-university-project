@@ -6,13 +6,10 @@
 #include "../h/MemoryAllocator.hpp"
 #include "../h/SleepList.hpp"
 
-
 using Body = void(*)(void*);
 
 _buffer* Riscv::inputBuffer = nullptr;
 _buffer* Riscv::outputBuffer = nullptr;
-
-
 
 void Riscv::popSppSpie() {
     __asm__ volatile ("csrw sepc, ra");
@@ -97,11 +94,15 @@ void Riscv::supervisorTrapHandler(){
        int code = plic_claim();
         if (code == CONSOLE_IRQ)
             plic_complete(code);
-            //console_handler();
     } else{
-        // print(scause)
-        // print(sepc)
-        // print(stval)
+        printString("scause: ");
+        printInt(r_scause());
+        printString("\nsepc: ");
+        printInt(r_sepc());
+        printString("\nstval: ");
+        printInt(r_stval());
+        printString("\n");
+
     }
 
     __asm__ volatile("mv a7, %0" : : "r"(a7));
@@ -112,8 +113,6 @@ void Riscv::supervisorTrapHandler(){
     __asm__ volatile("mv a2, %0" : : "r"(a2));
     __asm__ volatile("mv a1, %0" : : "r"(a1));
     __asm__ volatile("mv a0, %0" : : "r"(a0));
-
-
 }
 
 
