@@ -10,15 +10,25 @@ int _sem::createSemaphore(sem_t *handle, int i) {
     return 0;
 }
 
-void _sem::wait() {
+int _sem::wait() {
+    if(!this->active)
+        return -1;
+
     if(--value < 0)
         block();
-    // TODO obrada greske za wait
+
+    if(!this->active)
+        return -1;
+    return 0;
 }
 
-void _sem::signal() {
+int _sem::signal() {
+    if(!this->active)
+        return -1;
+
     if(++value <= 0)
         unblock();
+    return 0;
 }
 
 void _sem::block() {
@@ -34,12 +44,16 @@ void _sem::unblock() {
 }
 
 int _sem::close(){
+
+    if(!this->active)
+        return -1;
     TCB* thread;
     for(thread = blocked.removeFirst(); thread;){
         thread->setStatus(TCB::RUNNING);
         Scheduler::put(thread);
         thread = blocked.removeFirst();
     }
+    this->active = false;
     return 0;
 }
 
