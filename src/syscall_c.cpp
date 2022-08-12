@@ -131,3 +131,20 @@ void putc(char c){
 
     return;
 }
+
+int thread_cpp_create(thread_t* handle, void(*start_routine)(void*), void* arg) {
+
+    void* stack = mem_alloc(sizeof(uint64) * DEFAULT_STACK_SIZE);
+
+    __asm__ volatile("mv a4, %[var]" : : [var] "r"(stack));
+    __asm__ volatile("mv a3, %[var]" : : [var] "r"(arg));
+    __asm__ volatile("mv a2, %[var]" : : [var] "r"(start_routine));
+    __asm__ volatile("mv a1, %[var]" : : [var] "r"(handle));
+    __asm__ volatile("mv a0, %[var]" : : [var] "r"(THREAD_CPP_CREATE));
+    __asm__ volatile("ecall");
+
+    uint64 volatile ret;
+    __asm__ volatile ("mv %0, a0" : "=r" (ret));
+    return (int)ret;
+
+}

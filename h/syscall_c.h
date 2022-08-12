@@ -24,6 +24,7 @@ enum code {
     CONSOLE = 0x0a,
     GETC = 0x41,
     PUTC = 0x42,
+    THREAD_CPP_CREATE = 0x15,
     TIMER = 0x8000000000000001UL, // supervisor software interrupt
     HARDWARE = 0x8000000000000009UL
 };
@@ -36,7 +37,6 @@ typedef TCB* thread_t;
 int thread_create (thread_t* handle, void(*start_routine)(void*), void* arg);
 int thread_exit ();
 void thread_dispatch ();
-
 
 class _sem;
 typedef _sem* sem_t;
@@ -51,4 +51,7 @@ int time_sleep (time_t);
 const int EOF = -1;
 char getc ();
 void putc(char);
+
+int thread_cpp_create(thread_t* handle, void(*start_routine)(void*), void* arg);
+
 #endif //OS_PROJEKAT_SYSCALL_C_H

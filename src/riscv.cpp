@@ -79,6 +79,10 @@ void Riscv::supervisorTrapHandler(){
             ret = (uint64)inputBuffer->kget();
         }else if(operation == PUTC){
             outputBuffer->kput((char)a1);
+        }else if(operation == THREAD_CPP_CREATE){
+            ret = TCB::createThread((thread_t*)a1, (Body)a2, (void*)a3, (uint64*)a4, TCB::READY);
+            thread_t* handle = (thread_t*)a1;
+            if(*handle == nullptr) ret  = 1;
         }
         w_sstatus(sstatus);
         w_sepc(sepc + 4);

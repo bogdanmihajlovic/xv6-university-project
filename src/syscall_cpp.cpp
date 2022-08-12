@@ -22,8 +22,9 @@ PeriodicThread::PeriodicThread(time_t period) : Thread(periodicThreadWrapper, (v
 
 
 Thread::Thread(void (*body)(void *), void *arg) {
-    uint64* stack = (uint64*)mem_alloc(sizeof(uint64)*DEFAULT_STACK_SIZE);
-    TCB::createThread(&myHandle,body, arg, stack, TCB::READY);
+    //uint64* stack = (uint64*)mem_alloc(sizeof(uint64)*DEFAULT_STACK_SIZE);
+    //TCB::createThread(&myHandle,body, arg, stack, TCB::READY);
+    thread_cpp_create(&myHandle, body, arg);
 }
 
 Thread::~Thread() {}
@@ -42,8 +43,9 @@ int Thread::sleep(time_t time) {
 }
 
 Thread::Thread() {
-    uint64* stack = (uint64*)mem_alloc(sizeof(uint64)*DEFAULT_STACK_SIZE);
-    TCB::createThread(&myHandle, threadWrapper, (void*)this, stack, TCB::READY);
+/*    uint64* stack = (uint64*)mem_alloc(sizeof(uint64)*DEFAULT_STACK_SIZE);
+    TCB::createThread(&myHandle, threadWrapper, (void*)this, stack, TCB::READY);*/
+    thread_cpp_create(&myHandle, threadWrapper, (void*)this);
 }
 
 
