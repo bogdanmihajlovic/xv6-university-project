@@ -13,6 +13,7 @@ private:
         Elem *next;
 
         Elem(T *data, Elem *next) : data(data), next(next) {}
+
         void* operator new(size_t size) {
             return MemoryAllocator::getMemory(size);
         }
@@ -131,4 +132,4 @@ public:
     }
 };
 
-#endif //OS1_VEZBE07_RISCV_CONTEXT_SWITCH_1_SYNCHRONOUS_LIST_HPP
+#endif

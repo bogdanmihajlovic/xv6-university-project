@@ -117,7 +117,7 @@ void testSinhro(){
      thread_create(&laza, pusacLaza, nullptr);
 
 
-     time_sleep(10);
+     time_sleep(50);
 
 }
 

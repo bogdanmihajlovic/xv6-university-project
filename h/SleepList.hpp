@@ -25,6 +25,7 @@ public:
     };
 
     static void put(TCB* thread, time_t);
+    static void emptyList();
 
 private:
     static List<Sleep> sleepingThreads;

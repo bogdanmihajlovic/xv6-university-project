@@ -49,28 +49,31 @@ void Riscv::supervisorTrapHandler(){
             ret = (uint64)MemoryAllocator::freeMemory((void*)a1);
         }else if(operation == THREAD_CREATE){
             ret = TCB::createThread((thread_t*)a1, (Body)a2, (void*)a3, (uint64*)a4);
+            thread_t* handle = (thread_t*)a1;
+            if(*handle == nullptr) ret  = 1;
         }else if(operation == THREAD_EXIT){
             ret = TCB::stopThread();
         }else if(operation == THREAD_DISPATCH){
             TCB::dispatch();
         }else if(operation == SEM_OPEN){
             ret = _sem::createSemaphore((sem_t*)a1, (int)a2);
+            sem_t * handle = (sem_t*)a1;
+            if(*handle == nullptr) ret  = 1;
         }else if(operation == SEM_CLOSE){
             sem_t id = (sem_t)a1;
-            id->close();
+            ret = id->close();
         }else if(operation == SEM_WAIT){
             sem_t semaphore = (sem_t)a1;
-            semaphore->wait();
+            ret = semaphore->wait();
         }else if(operation == SEM_SIGNAL){
             sem_t semaphore = (sem_t)a1;
-            semaphore->signal();
+            ret = semaphore->signal();
         }else if(operation == THREAD_YIELD){
             TCB::timeSliceCounter = 0;
             TCB::dispatch();
         }else if(operation == TIME_SLEEP){
             time_t time = (time_t)a1;
             SleepList::put(TCB::running, time);
-            //TCB::running->setStatus(TCB::SLEEPING);
             TCB::dispatch();
         }else if(operation == GETC){
             ret = (uint64)inputBuffer->kget();
@@ -115,6 +118,10 @@ void Riscv::supervisorTrapHandler(){
     __asm__ volatile("mv a0, %0" : : "r"(a0));
 }
 
+void Riscv::finish() {
+    delete inputBuffer;
+    delete outputBuffer;
+}
 
 void *Riscv::operator new(size_t size) {
     return MemoryAllocator::getMemory(size);

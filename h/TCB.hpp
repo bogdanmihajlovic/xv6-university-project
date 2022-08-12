@@ -14,40 +14,65 @@
 class TCB {
 public:
 
-
-
     enum threadStatus {FINISHED, RUNNING, BLOCKED, SLEEPING, READY};
-    int pid;
+
     using Body = void (*)(void*);
 
-    void setStatus(threadStatus status) { this->status = status; }
-    threadStatus getStatus() const { return status; }
-
-    static int createThread(thread_t* handle, Body body, void* args, uint64* st);
-    static int createThread(thread_t* handle, Body body, void* args, uint64* st, threadStatus status);
-    static int stopThread();
-    static void yield();
-    static void mainWrapper(void*);
 
     static TCB* running;
+    int pid;
 
-    ~TCB(){
-        //delete[] stack;
-        stack = 0;
-    };
+    void setStatus(threadStatus status) { this->status = status; }
 
+    threadStatus getStatus() const { return status; }
+
+    // function for creating thread C API
+    static int createThread(thread_t* handle, Body body, void* args, uint64* st);
+
+    // function for creating thread CPP API
+    static int createThread(thread_t* handle, Body body, void* args, uint64* st, threadStatus status);
+
+    // stop thread
+    static int stopThread();
+
+    // call ecall and in ecall call dispatch
+    static void yield();
+
+    // temp function for userMain
+    static void mainWrapper(void*);
+
+    // function for printing on console
     static void output(void*);
+
+    // function to get char from console
     static void input(void*);
+
+    // function for idle thread - for switching context
     static void idle(void*);
+
+    // function for starting thread - CPP API
     static int start(thread_t);
+
+    // delete all threads
+    static void deleteThreads();
+
+
 
     void *operator new(size_t);
     void *operator new[](size_t);
     void operator delete(void*);
     void operator delete[](void*);
+
+    ~TCB(){
+        mem_free(stack);
+        stack = nullptr;
+    };
+
+
+
 private:
 
-
+    // constructor for C API
     TCB(Body body, void* args, uint64* stack) :
         body(body),
         args(args),
@@ -55,13 +80,13 @@ private:
         context({(uint64)&threadWrapper, stack != nullptr ? (uint64)&stack[DEFAULT_STACK_SIZE] : 0}),
         timeSlice(DEFAULT_TIME_SLICE),
         status(RUNNING){
-
           pid = ++counter;
           if (body != nullptr) {
               Scheduler::put(this);
           }
     }
 
+    // constructor for CPP API
     TCB(Body body, void* args, uint64* stack, threadStatus status) :
     body(body),
     args(args),
@@ -90,14 +115,17 @@ private:
     static void threadWrapper();
 
 
-
-    friend class Riscv;
     static void contextSwitch(Context* oldContext, Context* newContext);
     static void dispatch();
     static int counter;
     static uint64 timeSliceCounter;
+
+    friend class Riscv;
     friend class SleepList;
     friend class _sem;
+
+
+    static List<TCB> threads;
 
 };
 #endif //OS_PROJEKAT_TCB_HPP

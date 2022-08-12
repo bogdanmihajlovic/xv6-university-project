@@ -9,7 +9,12 @@
 #include "../h/MemoryAllocator.hpp"
 
 extern void userMain();
-// TODO brisanje steka
+
+
+uint64 TCB::timeSliceCounter = 0;
+TCB* TCB::running = nullptr;
+int TCB::counter = 0;
+List<TCB> TCB::threads;
 
 void TCB::input(void* arg){
     while(1) {
@@ -25,8 +30,8 @@ void TCB::input(void* arg){
     }
 }
 
-void TCB::output(void* arg) {
 
+void TCB::output(void* arg) {
     while(1) {
         Riscv::mc_sstatus(Riscv::SSTATUS_SIE);
         char status = *((char *) CONSOLE_STATUS);
@@ -56,17 +61,18 @@ void TCB::dispatch(){
 int TCB::createThread(thread_t* handle, Body body, void* args, uint64* stack) {
     TCB* thread  = new TCB(body, args, stack);
     *handle = thread;
-    return 0; // TODO obrada greske
+    return 0;
 }
 
 int TCB::createThread(thread_t* handle, Body body, void* args, uint64* stack, threadStatus status) {
     TCB* thread  = new TCB(body, args, stack, status);
     *handle = thread;
-    return 0; // TODO obrada greske
+    return 0;
 }
 
 int TCB::stopThread() {
     running->setStatus(FINISHED);
+    threads.addLast(running);
     TCB::dispatch();
     return 0;
 }
@@ -79,6 +85,7 @@ void TCB::threadWrapper(){
     Riscv::popSppSpie();
     running->body(running->args);
     running->setStatus(FINISHED);
+    threads.addLast(running);
     TCB::yield();
 }
 
@@ -92,10 +99,6 @@ void TCB::mainWrapper(void* sem) {
     userMain();
     sem_signal((sem_t)sem);
 }
-uint64 TCB::timeSliceCounter = 0;
-TCB* TCB::running = nullptr;
-int TCB::counter = 0;
-
 
 
 void* TCB::operator new(size_t size) {
@@ -113,5 +116,16 @@ void TCB::operator delete(void* addr) {
 void TCB::operator delete[](void* addr) {
     MemoryAllocator::freeMemory(addr);
 }
+
+void TCB::deleteThreads() {
+    TCB* t = threads.removeFirst();
+    while(t){
+        TCB* old = t;
+        t = threads.removeFirst();
+        delete old;
+    }
+}
+
+
 
 

@@ -57,7 +57,6 @@ int thread_exit (){
     __asm__ volatile("ecall");
     uint64 volatile ret;
     __asm__ volatile ("mv %0, a0" : "=r" (ret));
-
     return (int)ret;
 }
 
@@ -74,7 +73,6 @@ int sem_open (sem_t* handle, unsigned init){
     __asm__ volatile("ecall");
     uint64 volatile ret;
     __asm__ volatile ("mv %0, a0" : "=r" (ret));
-
     return (int)ret;
 }
 
@@ -84,7 +82,6 @@ int sem_close(sem_t handle){
     __asm__ volatile("ecall");
     uint64 volatile ret;
     __asm__ volatile ("mv %0, a0" : "=r" (ret));
-
     return (int)ret;
 }
 

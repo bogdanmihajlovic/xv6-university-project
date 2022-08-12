@@ -25,7 +25,6 @@ _buffer::~_buffer() {
     delete itemAvailable;
     delete mutexHead;
     delete mutexTail;
-    printString("obrisao sam buffer\n");
 }
 
 void _buffer::put(char val) {

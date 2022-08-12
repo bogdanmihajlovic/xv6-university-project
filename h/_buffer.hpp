@@ -20,10 +20,13 @@ private:
     sem_t mutexHead;
     sem_t mutexTail;
 
+    // put for kernel
     void kput(char val);
+
+    // get for kernel
     char kget();
 
-        friend class TCB;
+    friend class TCB;
 public:
 
     _buffer();
