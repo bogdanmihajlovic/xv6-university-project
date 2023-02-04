@@ -17,7 +17,7 @@ private:
     const static int BUCKET_SIZE;
 
     Alloc bucket[18][1<<13];
-    int numOfBlocks[18];
+    uint64 numOfBlocks[18];
     const void* START_ADDR;
 
 public:
@@ -27,16 +27,16 @@ public:
     BuddyAllocator& operator=(BuddyAllocator&&) = delete;
 
     int countFree() const;
-    void* alloc (int size);
-    void dealloc(void* addr, int size);
+    void* alloc (size_t size);
+    void dealloc(void* addr, size_t size);
     static BuddyAllocator& getInstance();
-    static int roundToPow2(int x);
+    static uint64 roundToPow2(uint64 x);
 private:
 
-    int getFreeBlock (int size) const;
-    void* getBlockAddr(int size, int block) const;
-    int getBlockAddr(int size, void* addr) const;
-    void setBlock (int size, int block, Alloc a) { bucket[size][block] = a; }
+    int getFreeBlock (size_t size) const;
+    void* getBlockAddr(size_t size, int block) const;
+    int getBlockAddr(size_t size, void* addr) const;
+    void setBlock (size_t size, int block, Alloc a) { bucket[size][block] = a; }
     BuddyAllocator();
 
 

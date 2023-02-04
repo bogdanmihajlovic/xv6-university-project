@@ -27,28 +27,29 @@ BuddyAllocator &BuddyAllocator::getInstance() {
 }
 
 
-inline int BuddyAllocator::getFreeBlock (int size) const {
+inline int BuddyAllocator::getFreeBlock (size_t size) const {
     for (int i=0; i<numOfBlocks[size]; i++)
         if (bucket[size][i]==FREE) return i;
     return -1;
 }
 
-void *BuddyAllocator::getBlockAddr(int size, int block) const {
+void *BuddyAllocator::getBlockAddr(size_t size, int block) const {
     size_t offset = 1<<size;
     return (void*)((char*)START_ADDR + offset*block);
 }
 
-void* BuddyAllocator::alloc (int size) {
+void* BuddyAllocator::alloc (size_t size) {
 
     if (size<START_SIZE || size>=END_SIZE)
-        return 0; // Exception
+        return nullptr; // Exception
 
-    int block = -1, current=size-5;
+    int block = -1;
+    uint64 current=size-5;
     for (; block<0 && current<BUCKET_SIZE; current++)
         block = getFreeBlock(current);
 
     if (block<0)
-        return 0; // No available memory
+        return nullptr; // No available memory
 
     setBlock(--current,block,ALLOC);
     while (--current >= size-5) {
@@ -58,12 +59,12 @@ void* BuddyAllocator::alloc (int size) {
     return getBlockAddr(size,block);
 }
 
-inline int BuddyAllocator::getBlockAddr(int size, void *addr) const {
+inline int BuddyAllocator::getBlockAddr(size_t size, void *addr) const {
     int block = ((int)((size_t)addr - (size_t)START_ADDR))/(1<<size);
     return block;
 }
 
-void BuddyAllocator::dealloc(void *addr, int size) {
+void BuddyAllocator::dealloc(void *addr, size_t size) {
 
     int block = getBlockAddr(size, addr);
     setBlock(size-5, block, FREE);
@@ -94,8 +95,8 @@ int BuddyAllocator::countFree() const {
     return count;
 }
 
-int BuddyAllocator::roundToPow2(int x) {
-        int power = 2;
+uint64 BuddyAllocator::roundToPow2(uint64 x) {
+        uint64 power = 2;
         x--;
         while (x >>= 1) power <<= 1;
         return power;
