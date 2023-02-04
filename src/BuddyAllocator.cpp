@@ -93,3 +93,11 @@ int BuddyAllocator::countFree() const {
     }
     return count;
 }
+
+int BuddyAllocator::roundToPow2(int x) {
+        int power = 2;
+        x--;
+        while (x >>= 1) power <<= 1;
+        return power;
+
+}
