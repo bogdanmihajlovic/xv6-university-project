@@ -1,9 +1,12 @@
 #include "../h/MemoryAllocator.hpp"
 
 
-MemoryAllocator::MemoryAllocator() {
-    head = (FreeBlock*)HEAP_START_ADDR;
-    head->size = (size_t)HEAP_END_ADDR - (size_t)HEAP_START_ADDR - sizeof(FreeBlock);
+MemoryAllocator::MemoryAllocator()  {
+    END_ADDR = HEAP_END_ADDR;
+    size_t offset = ((size_t)HEAP_END_ADDR - (size_t)HEAP_START_ADDR)>>3;
+    START_ADDR = (void*)((char*)HEAP_START_ADDR + offset);
+    head = (FreeBlock*)START_ADDR;
+    head->size = (size_t)END_ADDR - (size_t)START_ADDR - sizeof(FreeBlock);
     head->next = 0;
     head->prev = 0;
     tail = head;

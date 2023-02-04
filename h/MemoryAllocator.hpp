@@ -39,7 +39,8 @@ private:
     MemoryAllocator();
     void tryToMerge(FreeBlock* );
 
-    // TODO ovo sam izmenio
+    const void* START_ADDR;
+    const void* END_ADDR;
 };
 
 #endif
