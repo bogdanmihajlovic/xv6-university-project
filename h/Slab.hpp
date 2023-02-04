@@ -10,8 +10,12 @@
 
 class Slab{
 public:
+
     Slab(size_t slotSize);
     Slab(size_t slotSize, Slab* next, Slab* prev);
+
+    void setNext(Slab* next) { this->next = next;}
+    void setPrev(Slab* prev) {this->prev = prev; }
 
     void* getObject();
     int freeObject(void* addr);
@@ -27,6 +31,7 @@ private:
     unsigned numOfFreeSlots;
     unsigned numOfSlots;
     void* slots;
+    uint64* index;
 
 };
 #endif //OS_PROJEKAT_SLAB_HPP
