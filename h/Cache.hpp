@@ -4,17 +4,22 @@
 
 #ifndef OS_PROJEKAT_CACHE_HPP
 #define OS_PROJEKAT_CACHE_HPP
-#include "../h/Slab.hpp"
+#include "../h/_slab.hpp"
 #include "../lib/hw.h"
 
+
 class Cache{
-
-
 public:
     using Func = void(*)(void*);
 
-    Cache(const char* name, size_t objectSize, Func constructor, Func destructor): name(name), objectSize(objectSize), freeHead(nullptr), halfHead(nullptr), fullHead(nullptr), ctor(constructor), dtor(destructor) {
-        freeHead = new Slab(objectSize, ctor, dtor);
+    Cache(const char* name, size_t objectSize, Func constructor, Func destructor) : objectSize(objectSize), halfHead(nullptr), fullHead(nullptr), ctor(constructor), dtor(destructor) {
+        int len;
+        for(len = 0; name[len] != '\0';len++) {
+            this->name[len] = name[len];
+        }
+        this->name[len] = '\0';
+
+        freeHead = new _slab(objectSize, nullptr, nullptr, ctor, dtor);
     }
 
     void* alloc();
@@ -30,12 +35,12 @@ public:
 
 private:
 
-    const char* name;
+    char name[30];
     size_t objectSize;
 
-    Slab* freeHead;
-    Slab* halfHead;
-    Slab* fullHead;
+    _slab* freeHead;
+    _slab* halfHead;
+    _slab* fullHead;
     Func ctor; // constructor
     Func dtor; // destructor
 
