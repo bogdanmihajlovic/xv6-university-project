@@ -30,7 +30,8 @@ public:
     void* alloc (size_t size);
     void dealloc(void* addr, size_t size);
     static BuddyAllocator& getInstance();
-    static uint64 roundToPow2(uint64 x);
+    static uint64 roundToPow2(size_t x);
+    static uint16 log2(uint64 n);
 private:
 
     int getFreeBlock (size_t size) const;
