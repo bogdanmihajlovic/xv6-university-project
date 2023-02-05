@@ -32,12 +32,12 @@ public:
 private:
     size_t slotSize;
     _slab* next, *prev;
-    long head;
-    long* index;
+
+    char* index;
     Func ctor;
     Func dtor;
-    unsigned numOfFreeSlots;
-    unsigned numOfSlots;
+    int numOfFreeSlots;
+    int numOfSlots;
     void* slots;
 
 
