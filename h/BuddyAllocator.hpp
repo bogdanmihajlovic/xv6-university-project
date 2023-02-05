@@ -16,8 +16,8 @@ private:
     const static int START_SIZE;
     const static int BUCKET_SIZE;
 
-    Alloc bucket[18][1<<13];
-    uint64 numOfBlocks[18];
+    Alloc bucket[18][1<<13]; // TODO nemoj da hardkodujes ove vrednosti
+    int numOfBlocks[18];
     const void* START_ADDR;
 
 public:
@@ -34,7 +34,7 @@ public:
     static uint16 log2(uint64 n);
 private:
 
-    int getFreeBlock (size_t size) const;
+    int getFreeBlock (int size) const;
     void* getBlockAddr(size_t size, int block) const;
     int getBlockAddr(size_t size, void* addr) const;
     void setBlock (size_t size, int block, Alloc a) { bucket[size][block] = a; }
