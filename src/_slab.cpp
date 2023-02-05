@@ -2,10 +2,9 @@
 // Created by bogdan on 4.2.23..
 //
 
-#include "../h/Slab.hpp"
+#include "../h/_slab.hpp"
 
-Slab::Slab(size_t slotSize, Func ctor, Func dtor) : slotSize(slotSize), next(nullptr), prev(nullptr), head(0), ctor(ctor), dtor(dtor){
-
+_slab::_slab(size_t slotSize, _slab *next, _slab *prev, Func ctor, Func dtor) : slotSize(slotSize), next(next), prev(prev), head(0), ctor(ctor), dtor(dtor){
     this->numOfSlots = 20; // todo bolje resenje
     this->numOfFreeSlots = this->numOfSlots;
 
@@ -21,29 +20,6 @@ Slab::Slab(size_t slotSize, Func ctor, Func dtor) : slotSize(slotSize), next(nul
         size = 5;
     this->index = (long*)BuddyAllocator::getInstance().alloc(size);
 
-    this->head = 0;
-    for(long i = 0; i < numOfSlots - 1; i++){
-        index[i] = i + 1;
-    }
-    index[numOfSlots-1] = -1;
-}
-
-Slab::Slab(size_t slotSize, Slab *next, Slab *prev, Func ctor, Func dtor) : slotSize(slotSize), next(next), prev(prev), head(0), ctor(ctor), dtor(dtor){
-    this->numOfSlots = 20;
-    this->numOfFreeSlots = this->numOfSlots;
-
-    uint64 size = this->slotSize*this->numOfSlots;
-    size = BuddyAllocator::roundToPow2(size);
-    size = BuddyAllocator::log2(size);
-    this->slots = BuddyAllocator::getInstance().alloc(size);
-
-    size = sizeof(long)*this->numOfSlots;
-    size = BuddyAllocator::roundToPow2(size);
-    size = BuddyAllocator::log2(size);
-    if(size < 5) // TODO min size
-        size = 5;
-    this->index = (long*)BuddyAllocator::getInstance().alloc(size);
-
 
     for(long i = 0; i < numOfSlots - 1; i++){
         index[i] = i + 1;
@@ -51,7 +27,7 @@ Slab::Slab(size_t slotSize, Slab *next, Slab *prev, Func ctor, Func dtor) : slot
     index[numOfSlots-1] = -1;
 }
 
-void *Slab::getObject() {
+void *_slab::getObject() {
 
     if(numOfSlots == 0)
         return nullptr;
@@ -69,7 +45,7 @@ void *Slab::getObject() {
     return obj;
 }
 
-int Slab::freeObject(void *addr) {
+int _slab::freeObject(void *addr) {
     if (addr == nullptr || (char*)addr < (char*)slots || (char*)addr > (char*)slots + numOfSlots*slotSize)
         return -1; // Exception wrong address
 
@@ -80,25 +56,25 @@ int Slab::freeObject(void *addr) {
     return 0;
 }
 
-void *Slab::operator new(size_t s) {
+void *_slab::operator new(size_t s) {
     size_t size = BuddyAllocator::roundToPow2(s);
     size = BuddyAllocator::log2(size);
     return BuddyAllocator::getInstance().alloc(size);
 
 }
 
-void Slab::operator delete(void *p) {
-    size_t size = BuddyAllocator::roundToPow2(sizeof(Slab));
+void _slab::operator delete(void *p) {
+    size_t size = BuddyAllocator::roundToPow2(sizeof(_slab));
     size = BuddyAllocator::log2(size);
     BuddyAllocator::getInstance().dealloc(p, size);
 
 }
 
-bool Slab::isFull() const {
+bool _slab::isFull() const {
     return numOfFreeSlots == 0;
 }
 
-Slab::~Slab() {
+_slab::~_slab() {
 
     if(dtor){ // call destructor of objects
         for(unsigned i = 0;i < numOfSlots;i++){

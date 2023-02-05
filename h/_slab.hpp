@@ -2,24 +2,23 @@
 // Created by bogdan on 4.2.23..
 //
 
-#ifndef OS_PROJEKAT_SLAB_HPP
-#define OS_PROJEKAT_SLAB_HPP
+#ifndef OS_PROJEKAT__SLAB_HPP
+#define OS_PROJEKAT__SLAB_HPP
 
 #include "../lib/hw.h"
 #include "../h/BuddyAllocator.hpp"
 #include "../h/syscall_cpp.hpp"
 
-class Slab{
+class _slab{
 public:
     using Func = void(*)(void*);
 
-    Slab(size_t slotSize,Func ctor, Func dtor);
-    Slab(size_t slotSize, Slab* next, Slab* prev, Func ctor, Func dtor);
+    _slab(size_t slotSize, _slab* next, _slab* prev, Func ctor, Func dtor);
 
-    void setNext(Slab* next) { this->next = next;}
-    void setPrev(Slab* prev) {this->prev = prev; }
-    Slab* getNext() const { return next; }
-    Slab* getPrev() const {return prev;}
+    void setNext(_slab* next) { this->next = next;}
+    void setPrev(_slab* prev) { this->prev = prev; }
+    _slab* getNext() const { return next; }
+    _slab* getPrev() const {return prev;}
 
     bool isFull() const;
     bool isEmpty() const { return numOfSlots == numOfFreeSlots;}
@@ -29,10 +28,10 @@ public:
     static void* operator new(size_t s);
     static void operator delete(void* p);
 
-    ~Slab();
+    ~_slab();
 private:
     size_t slotSize;
-    Slab* next, *prev;
+    _slab* next, *prev;
     long head;
     long* index;
     Func ctor;
@@ -43,4 +42,4 @@ private:
 
 
 };
-#endif //OS_PROJEKAT_SLAB_HPP
+#endif //OS_PROJEKAT__SLAB_HPP
