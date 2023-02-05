@@ -10,18 +10,22 @@
 class Cache{
 private:
     const char* name;
-    Slab* freeHead;
-    Slab* fullHead;
-    Slab* halfHead;
-    size_t slabSize;
     size_t objectSize;
+    Slab* freeHead;
+    Slab* halfHead;
+    Slab* fullHead;
+
+
 public:
 
-    Cache(const char* name, size_t objectSize): name(name), objectSize(objectSize), halfHead(nullptr), fullHead(nullptr) {}
+    Cache(const char* name, size_t objectSize): name(name), objectSize(objectSize), freeHead(nullptr), halfHead(nullptr), fullHead(nullptr) {
+        freeHead = new Slab(objectSize, nullptr, nullptr);
+    }
 
     void* alloc();
+    void free(void* obj);
     void* shrink();
-    void free();
+
 
 
 };
