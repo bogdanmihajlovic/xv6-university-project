@@ -11,6 +11,7 @@ class Cache{
 private:
     const char* name;
     size_t objectSize;
+
     Slab* freeHead;
     Slab* halfHead;
     Slab* fullHead;
@@ -26,7 +27,10 @@ public:
     void free(void* obj);
     void* shrink();
 
+    static void* operator new(size_t s);
+    static void operator delete(void* p);
 
+    ~Cache();
 
 };
 

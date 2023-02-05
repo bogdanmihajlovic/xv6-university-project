@@ -10,14 +10,15 @@ void *Cache::alloc() {
 
         if(!freeHead){
             freeHead = new Slab(objectSize, nullptr, nullptr);
-            if(!freeHead) return nullptr;
+            if(!freeHead)
+                return nullptr;
         }
 
         // remove from free list move to half list
         Slab* slab = freeHead;
 
         freeHead = freeHead->getNext();
-        freeHead->setPrev(nullptr);
+        if(freeHead) freeHead->setPrev(nullptr);
 
         slab->setPrev(nullptr);
         slab->setNext(nullptr);
@@ -30,7 +31,7 @@ void *Cache::alloc() {
         // move from half to full
         halfHead->setNext(fullHead);
         halfHead->setPrev(nullptr);
-        fullHead->setPrev(halfHead);
+        if(fullHead) fullHead->setPrev(halfHead);
         fullHead = halfHead;
     }
 
@@ -103,6 +104,39 @@ void Cache::free(void *obj) {
 
 
 
+}
+
+void *Cache::operator new(size_t s) {
+    size_t size = BuddyAllocator::roundToPow2(s);
+    size = BuddyAllocator::log2(size);
+    return BuddyAllocator::getInstance().alloc(size);
+
+
+}
+
+void Cache::operator delete(void *p) {
+    size_t size = BuddyAllocator::roundToPow2(sizeof(Cache));
+    size = BuddyAllocator::log2(size);
+    BuddyAllocator::getInstance().dealloc(p, size);
+
+}
+
+Cache::~Cache() {
+    for(Slab* p = fullHead; p;){
+        Slab* q = p;
+        p = p->getNext();
+        delete q;
+    }
+    for(Slab* p = halfHead; p;){
+        Slab* q = p;
+        p = p->getNext();
+        delete q;
+    }
+    for(Slab* p = freeHead; p;){
+        Slab* q = p;
+        p = p->getNext();
+        delete q;
+    }
 }
 
 
