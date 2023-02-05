@@ -11,9 +11,10 @@
 
 class Slab{
 public:
+    using Func = void(*)(void*);
 
-    Slab(size_t slotSize);
-    Slab(size_t slotSize, Slab* next, Slab* prev);
+    Slab(size_t slotSize,Func ctor, Func dtor);
+    Slab(size_t slotSize, Slab* next, Slab* prev, Func ctor, Func dtor);
 
     void setNext(Slab* next) { this->next = next;}
     void setPrev(Slab* prev) {this->prev = prev; }
@@ -33,10 +34,13 @@ private:
     size_t slotSize;
     Slab* next, *prev;
     long head;
+    long* index;
+    Func ctor;
+    Func dtor;
     unsigned numOfFreeSlots;
     unsigned numOfSlots;
     void* slots;
-    long* index;
+
 
 };
 #endif //OS_PROJEKAT_SLAB_HPP

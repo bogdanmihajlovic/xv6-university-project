@@ -4,10 +4,11 @@
 
 #include "../h/Slab.hpp"
 
-Slab::Slab(size_t slotSize) : slotSize(slotSize), next(nullptr), prev(nullptr), head(0){
+Slab::Slab(size_t slotSize, Func ctor, Func dtor) : slotSize(slotSize), next(nullptr), prev(nullptr), head(0), ctor(ctor), dtor(dtor){
 
     this->numOfSlots = 20; // todo bolje resenje
     this->numOfFreeSlots = this->numOfSlots;
+
     uint64 size = this->slotSize*this->numOfSlots;
     size = BuddyAllocator::roundToPow2(size);
     size = BuddyAllocator::log2(size);
@@ -27,9 +28,10 @@ Slab::Slab(size_t slotSize) : slotSize(slotSize), next(nullptr), prev(nullptr), 
     index[numOfSlots-1] = -1;
 }
 
-Slab::Slab(size_t slotSize, Slab *next, Slab *prev) : slotSize(slotSize), next(next), prev(prev){
+Slab::Slab(size_t slotSize, Slab *next, Slab *prev, Func ctor, Func dtor) : slotSize(slotSize), next(next), prev(prev), head(0), ctor(ctor), dtor(dtor){
     this->numOfSlots = 20;
     this->numOfFreeSlots = this->numOfSlots;
+
     uint64 size = this->slotSize*this->numOfSlots;
     size = BuddyAllocator::roundToPow2(size);
     size = BuddyAllocator::log2(size);
@@ -42,7 +44,7 @@ Slab::Slab(size_t slotSize, Slab *next, Slab *prev) : slotSize(slotSize), next(n
         size = 5;
     this->index = (long*)BuddyAllocator::getInstance().alloc(size);
 
-    this->head = 0;
+
     for(long i = 0; i < numOfSlots - 1; i++){
         index[i] = i + 1;
     }
@@ -60,6 +62,10 @@ void *Slab::getObject() {
 
     head = index[head];
     numOfFreeSlots--;
+
+    if(ctor)
+        ctor(obj);
+
     return obj;
 }
 
@@ -93,6 +99,13 @@ bool Slab::isFull() const {
 }
 
 Slab::~Slab() {
+
+    if(dtor){ // call destructor of objects
+        for(unsigned i = 0;i < numOfSlots;i++){
+            void* obj = (void*)((char*)slots + i*slotSize);
+            dtor(obj);
+        }
+    }
 
     size_t size = this->slotSize*this->numOfSlots;
     size = BuddyAllocator::roundToPow2(size);

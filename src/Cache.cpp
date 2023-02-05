@@ -9,7 +9,7 @@ void *Cache::alloc() {
     if(!halfHead){
 
         if(!freeHead){
-            freeHead = new Slab(objectSize, nullptr, nullptr);
+            freeHead = new Slab(objectSize, ctor, dtor);
             if(!freeHead)
                 return nullptr;
         }
