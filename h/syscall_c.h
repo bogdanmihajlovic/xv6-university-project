@@ -8,6 +8,7 @@
 #include "../lib/hw.h"
 
 enum code {
+    BUDDY_ALLOC = 0x25,
     MEM_ALLOC  = 0x01,
     MEM_FREE = 0x02,
     THREAD_CREATE = 0x11,
@@ -29,6 +30,7 @@ enum code {
     HARDWARE = 0x8000000000000009UL
 };
 
+void* buddy_alloc(size_t);
 void* mem_alloc(size_t );
 int mem_free(void*);
 

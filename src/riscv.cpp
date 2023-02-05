@@ -5,6 +5,7 @@
 #include "../h/riscv.hpp"
 #include "../h/MemoryAllocator.hpp"
 #include "../h/SleepList.hpp"
+#include "../h/BuddyAllocator.hpp"
 
 using Body = void(*)(void*);
 
@@ -45,6 +46,8 @@ void Riscv::supervisorTrapHandler(){
         uint64 ret = 0;
         if(operation== MEM_ALLOC){
             ret = (uint64)MemoryAllocator::getMemory((size_t)a1);
+        }else if(operation == BUDDY_ALLOC){
+            ret = (uint64)BuddyAllocator::getInstance().alloc((size_t)a1);
         }else if(operation == MEM_FREE){
             ret = (uint64)MemoryAllocator::freeMemory((void*)a1);
         }else if(operation == THREAD_CREATE){

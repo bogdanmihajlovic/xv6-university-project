@@ -4,6 +4,23 @@
 
 #include "../h/syscall_c.h"
 
+void* buddy_alloc(size_t size) {
+    if(size <= 0)
+        return 0;
+    //size_t temp = size / MEM_BLOCK_SIZE;
+    //size_t sz = (temp * MEM_BLOCK_SIZE == size) ? size : (temp + 1)*MEM_BLOCK_SIZE;
+
+    __asm__ volatile("mv a1, %[var]" : : [var] "r"(size));
+    __asm__ volatile("mv a0, %[var]" : : [var] "r"(MEM_ALLOC));
+    __asm__ volatile("ecall");
+    uint64 volatile ret;
+    __asm__ volatile ("mv %0, a0" : "=r" (ret));
+
+    return (void*)ret;
+
+}
+
+
 void* mem_alloc(size_t size){
 
     if(size <= 0)
@@ -148,3 +165,4 @@ int thread_cpp_create(thread_t* handle, void(*start_routine)(void*), void* arg) 
     return (int)ret;
 
 }
+
