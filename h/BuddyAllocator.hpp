@@ -12,11 +12,11 @@ class BuddyAllocator{
 private:
     enum Alloc {FREE, ALLOC};
 
-    const static int END_SIZE;
-    const static int START_SIZE;
-    const static int BUCKET_SIZE;
+    static const int END_SIZE = 23;
+    static const int START_SIZE = 12;
+    static const int BUCKET_SIZE = 12;
 
-    Alloc bucket[18][1<<13]; // TODO nemoj da hardkodujes ove vrednosti
+    bool bucket[BUCKET_SIZE][1<<11]; // TODO nemoj da hardkodujes ove vrednosti
     int numOfBlocks[18];
     const void* START_ADDR;
 
@@ -31,13 +31,13 @@ public:
     void dealloc(void* addr, size_t size);
     static BuddyAllocator& getInstance();
     static uint64 roundToPow2(size_t x);
-    static uint16 log2(uint64 n);
+    static uint32 log2(uint64 n);
 private:
 
     int getFreeBlock (int size) const;
     void* getBlockAddr(size_t size, int block) const;
     int getBlockAddr(size_t size, void* addr) const;
-    void setBlock (size_t size, int block, Alloc a) { bucket[size][block] = a; }
+    void setBlock (size_t size, int block, bool a) { bucket[size][block] = a; }
     BuddyAllocator();
 
 
