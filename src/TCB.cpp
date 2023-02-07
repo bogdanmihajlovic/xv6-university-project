@@ -4,9 +4,10 @@
 
 #include "../h/TCB.hpp"
 #include "../h/riscv.hpp"
-#include "../h/scheduler.hpp"
-#include "../lib/mem.h"
-#include "../h/MemoryAllocator.hpp"
+//#include "../h/scheduler.hpp"
+//#include "../lib/mem.h"
+//#include "../h/MemoryAllocator.hpp"
+#include "../h/SlabAllocator.hpp"
 
 extern void userMain();
 
@@ -54,19 +55,34 @@ void TCB::dispatch(){
     if(old->getStatus() == RUNNING) {
         Scheduler::put(old);
     }
-    running = Scheduler::get();
+    while((running = Scheduler::get()) == nullptr){ // If some nullptr in scheduler
+        running = Scheduler::get();
+    }
+
     TCB::contextSwitch(&old->context, &running->context);
 }
 
 int TCB::createThread(thread_t* handle, Body body, void* args, uint64* stack) {
     TCB* thread  = new TCB(body, args, stack);
+
+    if(thread == nullptr){
+        *handle = nullptr;
+        return -1;
+    }
     *handle = thread;
+
     return 0;
 }
 
 int TCB::createThread(thread_t* handle, Body body, void* args, uint64* stack, threadStatus status) {
     TCB* thread  = new TCB(body, args, stack, status);
+    if(thread == nullptr){
+        *handle = nullptr;
+        return -1;
+    }
     *handle = thread;
+
+
     return 0;
 }
 
@@ -90,6 +106,10 @@ void TCB::threadWrapper(){
 }
 
 int TCB::start(thread_t pid){
+    if(pid == nullptr)
+        return -1;
+    if(pid->stack == nullptr)
+        return -1;
     pid->setStatus(RUNNING);
     Scheduler::put(pid);
     return 1;
@@ -102,7 +122,8 @@ void TCB::mainWrapper(void* sem) {
 
 
 void* TCB::operator new(size_t size) {
-    return MemoryAllocator::getMemory(size);
+    //return MemoryAllocator::getMemory(size);
+    return SlabAllocator::getInstance().allocKernel(size, SlabAllocator::TCB);
 }
 
 void* TCB::operator new[](size_t size) {
@@ -110,7 +131,8 @@ void* TCB::operator new[](size_t size) {
 }
 
 void TCB::operator delete(void* addr) {
-    MemoryAllocator::freeMemory(addr);
+    //MemoryAllocator::freeMemory(addr);
+    SlabAllocator::getInstance().deallocKernel(addr, SlabAllocator::TCB);
 }
 
 void TCB::operator delete[](void* addr) {
@@ -124,6 +146,17 @@ void TCB::deleteThreads() {
         t = threads.removeFirst();
         delete old;
     }
+}
+
+int TCB::createStack(thread_t pid) {
+    if(pid == nullptr){
+        return -1;
+    }
+    pid->stack =  (uint64*)SlabAllocator::getInstance().allocKernel(sizeof(uint64)*DEFAULT_STACK_SIZE, SlabAllocator::STACK);
+    pid->context.ra  = pid->stack != nullptr ? (uint64)&pid->stack[DEFAULT_STACK_SIZE] : 0;
+    if(pid->stack == nullptr)
+        return -1;
+    return 0;
 }
 
 

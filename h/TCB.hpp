@@ -11,6 +11,7 @@
 #include "../h/syscall_c.h"
 #include "../test/printing.hpp"
 
+
 class TCB {
 public:
 
@@ -56,7 +57,8 @@ public:
     // delete all threads
     static void deleteThreads();
 
-
+    // function for dynamic stack allocation for CPP API
+    static int createStack(thread_t);
 
     void *operator new(size_t);
     void *operator new[](size_t);
@@ -64,7 +66,8 @@ public:
     void operator delete[](void*);
 
     ~TCB(){
-        mem_free(stack);
+        //mem_free(stack);
+        if(stack) SlabAllocator::getInstance().deallocKernel(stack, SlabAllocator::STACK);
         stack = nullptr;
     };
 
