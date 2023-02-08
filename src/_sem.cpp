@@ -4,9 +4,14 @@
 
 #include "../h/_sem.hpp"
 #include "../h/MemoryAllocator.hpp"
+#include "../h/SlabAllocator.hpp"
 
 int _sem::createSemaphore(sem_t *handle, int i) {
     *handle = new _sem(i);
+    if(handle == nullptr){
+        *handle = nullptr;
+        return -1;
+    }
     return 0;
 }
 
@@ -59,7 +64,8 @@ int _sem::close(){
 
 
 void *_sem::operator new(size_t size) {
-    return MemoryAllocator::getMemory(size);
+    //return MemoryAllocator::getMemory(size);
+    return SlabAllocator::getInstance().allocKernel(size, SlabAllocator::SEM);
 }
 
 void *_sem::operator new[](size_t size) {
@@ -67,7 +73,8 @@ void *_sem::operator new[](size_t size) {
 }
 
 void _sem::operator delete(void *addr) {
-    MemoryAllocator::freeMemory(addr);
+    //MemoryAllocator::freeMemory(addr);
+    SlabAllocator::getInstance().deallocKernel(addr, SlabAllocator::SEM);
 }
 
 void _sem::operator delete[](void *addr) {

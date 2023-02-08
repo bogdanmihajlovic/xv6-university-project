@@ -9,6 +9,7 @@
 
 enum code {
     BUDDY_ALLOC = 0x25,
+    BUDDY_FREE = 0x26,
     MEM_ALLOC  = 0x01,
     MEM_FREE = 0x02,
     THREAD_CREATE = 0x11,
@@ -31,6 +32,7 @@ enum code {
 };
 
 void* buddy_alloc(size_t);
+void buddy_free(void* obj, size_t size);
 void* mem_alloc(size_t );
 int mem_free(void*);
 

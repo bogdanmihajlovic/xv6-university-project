@@ -120,6 +120,18 @@ void TCB::mainWrapper(void* sem) {
     sem_signal((sem_t)sem);
 }
 
+int TCB::createStack(thread_t pid) {
+    if(pid == nullptr){
+        return -1;
+    }
+    pid->stack =  (uint64*)SlabAllocator::getInstance().allocKernel(DEFAULT_STACK_SIZE, SlabAllocator::STACK);
+    pid->context.ra  = pid->stack != nullptr ? (uint64)&pid->stack[DEFAULT_STACK_SIZE] : 0;
+    if(pid->stack == nullptr)
+        return -1;
+    return 0;
+}
+
+
 
 void* TCB::operator new(size_t size) {
     //return MemoryAllocator::getMemory(size);
@@ -146,17 +158,6 @@ void TCB::deleteThreads() {
         t = threads.removeFirst();
         delete old;
     }
-}
-
-int TCB::createStack(thread_t pid) {
-    if(pid == nullptr){
-        return -1;
-    }
-    pid->stack =  (uint64*)SlabAllocator::getInstance().allocKernel(sizeof(uint64)*DEFAULT_STACK_SIZE, SlabAllocator::STACK);
-    pid->context.ra  = pid->stack != nullptr ? (uint64)&pid->stack[DEFAULT_STACK_SIZE] : 0;
-    if(pid->stack == nullptr)
-        return -1;
-    return 0;
 }
 
 

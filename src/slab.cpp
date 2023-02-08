@@ -10,8 +10,8 @@ kmem_cache_t *kmem_cache_create(const char *name, size_t size, void (*ctor)(void
 }
 
 int kmem_cache_shrink(kmem_cache_t *cachep) {
-   //Cache* c = (Cache*)cachep;
-    //c->cring();
+   Cache* c = (Cache*)cachep;
+    c->shrink();
     return 0;
 }
 
@@ -39,10 +39,13 @@ void kmem_cache_destroy(Cache *cachep) {
     delete c;
 }
 
-void kmem_cache_info(Cache *cachep) {
-
+void kmem_cache_info(kmem_cache_t* cachep) {
+    Cache* c = (Cache*)cachep;
+    c->printInfo();
 }
 
 int kmem_cache_error(kmem_cache_t *cachep) {
+    Cache* c = (Cache*)cachep;
+    c->printError();
     return 0;
 }

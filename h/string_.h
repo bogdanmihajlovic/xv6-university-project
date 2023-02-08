@@ -7,7 +7,7 @@
 #include "../lib/hw.h"
 
 size_t strlen(const char* str);
-char* strcpy(char *dest, const char * src);
+void strcpy(char *dest, const char * src);
 int strcmp(const char *str1, const char *str2);
 int strncmp(const char *str1, const char *str2, size_t n);
 int atoi(const char* string);

@@ -7,7 +7,7 @@
 
 #include "../lib/hw.h"
 #include "../h/BuddyAllocator.hpp"
-#include "../h/syscall_cpp.hpp"
+
 
 class _slab{
 public:
@@ -24,6 +24,9 @@ public:
     bool isEmpty() const { return numOfSlots == numOfFreeSlots;}
     void* getObject();
     int freeObject(void* addr);
+    int getNumOfObject() const { return numOfSlots - numOfFreeSlots;}
+    int getSize() const { return (int)numOfSlots*slotSize;}
+    int getNumOfSlots() const {return numOfSlots;}
 
     static void* operator new(size_t s);
     static void operator delete(void* p);
@@ -40,6 +43,7 @@ private:
     int numOfSlots;
     void* slots;
 
+    static int getNumOfSlots(size_t size);
 
 };
 #endif //OS_PROJEKAT__SLAB_HPP

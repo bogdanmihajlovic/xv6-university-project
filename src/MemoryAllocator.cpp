@@ -32,7 +32,7 @@ void* MemoryAllocator::IGetMemory(size_t size)  {
 
     // If not found
     if (blk == nullptr) {
-        return 0;
+        return nullptr;
     }
 
     size_t remainingSize = blk->size - size;

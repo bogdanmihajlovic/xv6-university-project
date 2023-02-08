@@ -18,13 +18,12 @@ public:
             this->name[len] = name[len];
         }
         this->name[len] = '\0';
-
         freeHead = new _slab(objectSize, nullptr, nullptr, ctor, dtor);
     }
 
     void* alloc();
     void free(void* obj);
-    void* shrink(); // TODO shrink
+    void shrink(); // TODO shrink
     void printInfo(); // TODO print info
     void printError(); // TODO print error
 
@@ -43,7 +42,7 @@ private:
     _slab* fullHead;
     Func ctor; // constructor
     Func dtor; // destructor
-
+    void findInfo(int*, int*, int*, int*);
 };
 
 #endif //OS_PROJEKAT_CACHE_HPP

@@ -3,6 +3,7 @@
 #define OS_PROJEKAT_LIST_HPP
 
 #include "MemoryAllocator.hpp"
+#include "SlabAllocator.hpp"
 
 template<typename T>
 class List
@@ -15,14 +16,19 @@ private:
         Elem(T *data, Elem *next) : data(data), next(next) {}
 
         void* operator new(size_t size) {
-            return MemoryAllocator::getMemory(size);
+            //void*addr =  MemoryAllocator::getMemory(size);
+            void* addr = SlabAllocator::getInstance().allocKernel(size, SlabAllocator::LISTELEM);
+
+            return addr;
         }
         void* operator new[](size_t size) {
             return MemoryAllocator::getMemory(size);
         }
 
         void operator delete(void *addr) {
-            MemoryAllocator::freeMemory(addr);
+            //MemoryAllocator::freeMemory(addr);
+            SlabAllocator::getInstance().deallocKernel(addr, SlabAllocator::LISTELEM);
+
         }
 
         void operator delete[](void *addr) {
@@ -45,12 +51,16 @@ public:
 
     void addFirst(T *data){
         Elem *elem = new Elem(data, head);
+        if(!elem)
+            return;
         head = elem;
         if (!tail) { tail = head; }
     }
 
     void addLast(T *data){
         Elem *elem = new Elem(data, 0);
+        if(!elem)
+            return;
         if (tail){
             tail->next = elem;
             tail = elem;

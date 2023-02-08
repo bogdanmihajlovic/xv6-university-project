@@ -48,6 +48,8 @@ void Riscv::supervisorTrapHandler(){
             ret = (uint64)MemoryAllocator::getMemory((size_t)a1);
         }else if(operation == BUDDY_ALLOC){
             ret = (uint64)BuddyAllocator::getInstance().alloc((size_t)a1);
+        }else if(operation == BUDDY_FREE){
+            BuddyAllocator::getInstance().dealloc((void*)a1, (size_t)a2);
         }else if(operation == MEM_FREE){
             ret = (uint64)MemoryAllocator::freeMemory((void*)a1);
         }else if(operation == THREAD_CREATE){
@@ -112,6 +114,8 @@ void Riscv::supervisorTrapHandler(){
         printString("\nstval: ");
         printInt(r_stval());
         printString("\n");
+        w_sstatus(sstatus);
+        w_sepc(sepc + 4);
 
     }
 

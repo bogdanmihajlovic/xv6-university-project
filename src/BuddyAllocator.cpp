@@ -74,6 +74,8 @@ inline int BuddyAllocator::getBlockAddr(size_t size, void *addr) const {
 }
 
 void BuddyAllocator::dealloc(void *addr, size_t size) {
+    if(addr == nullptr)
+        return;
     int newSize = log2(roundToPow2(size));
 
     if (newSize >= END_SIZE) {
@@ -109,9 +111,11 @@ int BuddyAllocator::countFree() const {
 
     int count = 0;
     for(int i = 0;i < BUCKET_SIZE;i++){
-        for (int j = 0; j < numOfBlocks[i]; j++)
+        for (int j = 0; j < numOfBlocks[i]; j++){
             if (bucket[i][j])
                 count++;
+        }
+
     }
     return count;
 }
@@ -123,7 +127,7 @@ uint64 BuddyAllocator::roundToPow2(uint64 x) {
         return power;
 }
 
-uint32 BuddyAllocator::log2(uint64 n) {
+uint16 BuddyAllocator::log2(uint64 n) {
     if (n==0)
         return 0;
     uint32 logValue = -1;

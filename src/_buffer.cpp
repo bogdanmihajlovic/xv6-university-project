@@ -4,7 +4,10 @@
 
 _buffer::_buffer() : cap(DEFAULT_BUFFER_SIZE + 1), head(0), tail(0) {
 
-    buffer = (char*)MemoryAllocator::getMemory(sizeof(char)*DEFAULT_BUFFER_SIZE);
+    //buffer = (char*)MemoryAllocator::getMemory(sizeof(char)*DEFAULT_BUFFER_SIZE);
+    //buffer = (char*)SlabAllocator::getInstance().allocKernel(sizeof(char)*DEFAULT_BUFFER_SIZE, SlabAllocator::BUFFER);// TODO stavi da alocira iz mem buffer velicine 1024
+    //buffer = (char*)BuddyAllocator::getInstance().alloc();// TODO stavi da alocira iz mem buffer velicine 1024
+    buffer = (char*)SlabAllocator::getInstance().allocBuffer(sizeof(char)*DEFAULT_BUFFER_SIZE);
     _sem::createSemaphore(&itemAvailable, 0);
     _sem::createSemaphore(&spaceAvailable, DEFAULT_BUFFER_SIZE + 1);
     _sem::createSemaphore(&mutexHead, 1);
@@ -19,7 +22,8 @@ _buffer::~_buffer() {
     sem_close(spaceAvailable);
     sem_close(mutexTail);
     sem_close(mutexHead);
-    MemoryAllocator::freeMemory(buffer);
+    //MemoryAllocator::freeMemory(buffer);
+    SlabAllocator::getInstance().deallocBuffer(buffer);
     buffer = nullptr;
     delete spaceAvailable;
     delete itemAvailable;
@@ -97,7 +101,8 @@ void _buffer::kput(char val) {
 
 
 void *_buffer::operator new(size_t size) {
-    return MemoryAllocator::getMemory(size);
+    //return MemoryAllocator::getMemory(size);
+    return SlabAllocator::getInstance().allocKernel(size, SlabAllocator::BUFFER);
 }
 
 void *_buffer::operator new[](size_t size) {
@@ -105,7 +110,9 @@ void *_buffer::operator new[](size_t size) {
 }
 
 void _buffer::operator delete(void *addr) {
-    MemoryAllocator::freeMemory(addr);
+    //MemoryAllocator::freeMemory(addr);
+    SlabAllocator::getInstance().deallocKernel(addr, SlabAllocator::BUFFER);
+
 }
 
 void _buffer::operator delete[](void *addr) {

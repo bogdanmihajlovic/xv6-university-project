@@ -6,7 +6,10 @@
 
 //#include "../test/ThreadSleep_C_API_test.hpp" // thread_sleep test C API
 #include "../test/ConsumerProducer_CPP_API_test.hpp" // zadatak 4. CPP API i asinhrona promena konteksta
+#include "../test/ThreadTestPeriodic.hpp"
 
+#include "../test/userMain1.hpp"
+#include "../test/userMain2.hpp"
 
 void userMain() {
 
@@ -18,8 +21,21 @@ void userMain() {
 
 
     //testSleeping(); // thread_sleep test C API
-    ConsumerProducerCPP::testConsumerProducer(); // zadatak 4. CPP API i asinhrona promena konteksta, kompletan test svega
+    //ConsumerProducerCPP::testConsumerProducer(); // zadatak 4. CPP API i asinhrona promena konteksta, kompletan test svega
 
 
+    userMain1(); // prvi test
+    //userMain2(); //drugi test
 
 }
+
+
+
+
+
+
+
+
+
+
+

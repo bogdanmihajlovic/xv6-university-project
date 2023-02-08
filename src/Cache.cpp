@@ -25,15 +25,20 @@ void *Cache::alloc() {
         halfHead = slab;
 
     }
-    void* obj = halfHead->getObject();
+    void* obj = nullptr;
+    if(halfHead)
+        obj = halfHead->getObject();
+    else
+        return nullptr;
 
     if(halfHead->isFull()){
+        _slab* nextFullHead = halfHead->getNext();
         // move from half to full
         halfHead->setNext(fullHead);
         halfHead->setPrev(nullptr);
         if(fullHead) fullHead->setPrev(halfHead);
         fullHead = halfHead;
-        halfHead = nullptr;
+        halfHead = nextFullHead;
     }
 
     return obj;
@@ -107,7 +112,7 @@ void Cache::free(void *obj) {
 }
 
 void *Cache::operator new(size_t s) {
-    return buddy_alloc(s);
+    return BuddyAllocator::getInstance().alloc(s);
 }
 
 void Cache::operator delete(void *p) {
@@ -130,6 +135,72 @@ Cache::~Cache() {
         p = p->getNext();
         delete q;
     }
+}
+
+void Cache::printInfo() {
+    int sz, slab, nob, p;
+    findInfo(&sz, &slab, &nob, &p);
+
+    printString("name \tobject size \tcache size(blocks) \t\tslabs \t\tnumber of objects \t\t%\n");
+    printString(name);
+    printString(" \t");
+    printInt(objectSize);
+    printString("\t\t\t\t");
+    printInt(sz);
+    printString("\t\t\t\t\t\t");
+    printInt(slab);
+    printString("\t\t\t\t");
+    printInt(nob);
+    printString("\t\t\t\t");
+    printInt(p);
+    printString(" \n");
+
+}
+
+void Cache::findInfo(int* cacheSize, int* slabs, int* numberOfObjects, int* prs) {
+    int i = 0;
+    for(_slab* p = fullHead;p;p = p->getNext())i++;
+    for(_slab* p = freeHead;p;p = p->getNext())i++;
+    for(_slab* p = halfHead;p;p = p->getNext())i++;
+    *slabs = i;
+
+    i = 0;
+    for(_slab* p = fullHead;p;p = p->getNext())i += p->getNumOfObject();
+    //for(_slab* p = freeHead;p;p = p->getNext())i += p->getNumOfObject();
+    for(_slab* p = halfHead;p;p = p->getNext())i += p->getNumOfObject();
+    *numberOfObjects = i;
+
+    i = 0;
+    for(_slab* p = fullHead;p;p = p->getNext())i += p->getSize();
+    for(_slab* p = freeHead;p;p = p->getNext())i += p->getSize();
+    for(_slab* p = halfHead;p;p = p->getNext())i += p->getSize();
+
+    *cacheSize = (i / 4096) + 1;
+    int maxObj = 0;
+    for(_slab* p = fullHead;p;p = p->getNext())maxObj += p->getNumOfSlots();
+    for(_slab* p = freeHead;p;p = p->getNext())maxObj += p->getNumOfObject();
+    for(_slab* p = halfHead;p;p = p->getNext())maxObj += p->getNumOfSlots();
+    *prs = (int)(*numberOfObjects*100 / maxObj);
+
+    if(fullHead) *numberOfObjects = fullHead->getNumOfSlots();
+    else if(freeHead) *numberOfObjects = freeHead->getNumOfSlots();
+    else if(halfHead) *numberOfObjects = halfHead->getNumOfSlots();
+
+
+
+}
+
+void Cache::printError() {
+    printString("Error\n");
+}
+
+void Cache::shrink() {
+    while(freeHead){
+        _slab* q = freeHead;
+        freeHead = freeHead->getNext();
+        delete q;
+    }
+
 }
 
 

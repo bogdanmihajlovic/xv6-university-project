@@ -23,7 +23,6 @@ public:
 
     static int freeMemory(void* addr) { return getInstance().IFreeMemory(addr); }
 
-
 private:
 
     struct FreeBlock{

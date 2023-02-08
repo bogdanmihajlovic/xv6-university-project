@@ -1,6 +1,7 @@
 #include "../h/syscall_cpp.hpp"
 #include "../h/TCB.hpp"
 #include "../lib/mem.h"
+#include "../h/SlabAllocator.hpp"
 
 
 void *operator new(size_t size){
@@ -30,6 +31,10 @@ Thread::Thread(void (*body)(void *), void *arg) {
 Thread::~Thread() {}
 
 int Thread::start() {
+    if(myHandle == nullptr)
+        return -1;
+    if(TCB::createStack(myHandle) == -1)
+        return -1;
     TCB::start(myHandle);
     return 0;
 }
@@ -51,6 +56,8 @@ Thread::Thread() {
 
 void Thread::threadWrapper(void *arg){
     Thread* t = (Thread*)arg;
+    if(t == nullptr)
+        return;
     t->run();
 }
 
@@ -65,7 +72,7 @@ void PeriodicThread::periodicThreadWrapper(void* arg){
 
 
 
-char Console::getc() {
+char Console::getc() {  // TODO pcb semafor buffer za konzolu sve liste
     return ::getc();
 }
 
@@ -88,6 +95,3 @@ int Semaphore::wait() {
 int Semaphore::signal() {
     return sem_signal(myHandle);
 }
-
-
-

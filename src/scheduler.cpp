@@ -13,6 +13,8 @@ TCB *Scheduler::get(){
 }
 
 void Scheduler::put(TCB *ccb){
+    if(ccb == nullptr)
+        return;
     readyCoroutineQueue.addLast(ccb);
 }
 

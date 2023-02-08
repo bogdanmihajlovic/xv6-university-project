@@ -10,6 +10,8 @@
 #include "../h/SleepList.hpp"
 
 
+
+
 int main(){
 
     Riscv::w_stvec((uint64)&Riscv::supervisorTrap);
@@ -29,6 +31,7 @@ int main(){
     sem_t mainSem;
     sem_open(&mainSem, 0);
 
+
     thread_t main;
     thread_create(&main, TCB::mainWrapper, mainSem);
 
@@ -38,6 +41,7 @@ int main(){
     Riscv::ms_sstatus(Riscv::SSTATUS_SIE);
 
     sem_wait(mainSem);
+
 
     while(Riscv::outputBuffer->getCnt() > 0)
         thread_dispatch();

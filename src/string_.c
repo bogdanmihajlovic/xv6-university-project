@@ -14,10 +14,9 @@ int atoi(const char* string){
     return num;
 }
 
-char* strcpy(char* dest, const char* src) {
+void strcpy(char* dest, const char* src) {
     for(int i = 0; src[i] != '\0'; i++)
         dest[i] = src[i];
-    return dest;
 }
 
 size_t strlen(const char *str) {
